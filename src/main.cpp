@@ -28,12 +28,13 @@ int main (int argc, char *argv[]) {
         std::cout << "Failed To Initialize GLFW" << std::endl;
         return -1;
     }
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); //Use OpenGL 3.3
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  //Core Profile
 
     GLFWwindow* window;    //Create a windowed mode window and its OpenGL context
-    window = glfwCreateWindow(800, 600, "New Window", NULL, NULL);
+    window = glfwCreateWindow(800, 600, "New Window", nullptr, nullptr);
     if (!window) {
         std::cout << "Failed To Create GLFW Window" << std::endl;
         glfwTerminate();
