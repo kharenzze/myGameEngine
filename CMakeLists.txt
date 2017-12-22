@@ -8,8 +8,60 @@ include_directories(
         src/deps/glad
         src/deps/glfw
 )
+if (UNIX)
+    file(
+            GLOB_RECURSE
+            glfw_os_dependences
+            src/deps/glfw/cocoa_init.m
+            src/deps/glfw/cocoa_joystick.m
+            src/deps/glfw/cocoa_joystick.h
+            src/deps/glfw/cocoa_platform.h
+            src/deps/glfw/cocoa_monitor.m
+            src/deps/glfw/cocoa_time.c
+            src/deps/glfw/cocoa_window.m
+            src/deps/glfw/getopt.c
+            src/deps/glfw/posix_tls.c
+            src/deps/glfw/nsgl_context.m
+            src/deps/glfw/tinycthread.c
+    )
+    add_definitions(
+            -D_GLFW_COCOA
+            -D_GLFW_WGL
+            -D_GLFW_USE_OPENGL=1
+    )
+elseif(WIN32)
+    file(
+            GLOB_RECURSE
+            glfw_os_dependences
+            src/deps/glfw/wgl_context.c
+            src/deps/glfw/wgl_context.h
+            src/deps/glfw/win32_init.c
+            src/deps/glfw/win32_joystick.c
+            src/deps/glfw/win32_joystick.h
+            src/deps/glfw/win32_monitor.c
+            src/deps/glfw/win32_platform.h
+            src/deps/glfw/win32_time.c
+            src/deps/glfw/win32_tls.c
+            src/deps/glfw/win32_window.c
+            src/deps/glfw/egl_context.c
+            src/deps/glfw/egl_context.h
+    )
+    add_definitions(
+            -D_GLFW_WIN32
+            -D_GLFW_WGL
+            -D_GLFW_USE_OPENGL=1
+    )
+endif(UNIX)
+
+
+file(
+    GLOB_RECURSE
+    my_files
+    src/main.cpp
+)
+
 add_definitions(
-        -D_GLFW_WIN32
+        -D_GLFW_COCOA
         -D_GLFW_WGL
         -D_GLFW_USE_OPENGL=1
 )
@@ -165,43 +217,43 @@ add_executable(myGameEngine
         include/glm/vector_relational.hpp
         include/KHR/khrplatform.h
         src/deps/glad/glad.c
-        src/deps/glfw/glad/glad.h
         src/deps/glfw/KHR/khrplatform.h
         src/deps/glfw/mingw/_mingw_dxhelper.h
         src/deps/glfw/mingw/dinput.h
         src/deps/glfw/mingw/xinput.h
         src/deps/glfw/vulkan/vk_platform.h
         src/deps/glfw/vulkan/vulkan.h
-        src/deps/glfw/context.c
-        src/deps/glfw/egl_context.c
-        src/deps/glfw/egl_context.h
         src/deps/glfw/getopt.h
         src/deps/glfw/glx_context.h
-        src/deps/glfw/init.c
-        src/deps/glfw/input.c
-        src/deps/glfw/internal.h
         src/deps/glfw/linmath.h
         src/deps/glfw/linux_joystick.h
         src/deps/glfw/mir_platform.h
-        src/deps/glfw/monitor.c
         src/deps/glfw/nsgl_context.h
         src/deps/glfw/posix_time.h
         src/deps/glfw/posix_tls.h
         src/deps/glfw/tinycthread.h
-        src/deps/glfw/vulkan.c
-        src/deps/glfw/wgl_context.c
-        src/deps/glfw/wgl_context.h
-        src/deps/glfw/win32_init.c
-        src/deps/glfw/win32_joystick.c
-        src/deps/glfw/win32_joystick.h
-        src/deps/glfw/win32_monitor.c
-        src/deps/glfw/win32_platform.h
-        src/deps/glfw/win32_time.c
-        src/deps/glfw/win32_tls.c
-        src/deps/glfw/win32_window.c
-        src/deps/glfw/window.c
         src/deps/glfw/wl_platform.h
         src/deps/glfw/x11_platform.h
         src/deps/glfw/xkb_unicode.h
-        src/main.cpp
+        src/deps/glfw/internal.h
+        src/deps/glfw/vulkan.c
+        src/deps/glfw/input.c
+        src/deps/glfw/context.c
+        src/deps/glfw/window.c
+        src/deps/glfw/init.c
+        src/deps/glfw/monitor.c
+        ${glfw_os_dependences}
+        ${my_files}
         )
+
+if (UNIX)
+    target_link_libraries(
+            myGameEngine
+            "-framework Cocoa"
+            "-framework AppKit"
+            "-framework CoreData"
+            "-framework Foundation"
+            "-framework IOKit"
+            "-framework CoreVideo"
+    )
+endif (UNIX)
