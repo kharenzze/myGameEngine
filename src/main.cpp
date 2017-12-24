@@ -26,34 +26,43 @@ void render(GLuint VAO, GLuint shader) {
     clearScreen();
     glUseProgram(shader);
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-GLuint createVertexData(GLuint* VBO) {
+GLuint createVertexData(GLuint* VBO, GLuint* EBO) {
     float vertices [] = {
         .5f, .5f, .0f,
         .5f, -.5f, .0f,
-        -.5f, .5f, .0f,
-
-        .5f, -.5f, .0f,
         -.5f, -.5f, .0f,
-        -.5f, .5f, .0f
+        -.5f, .5f, .0f,
     };
+
+    GLuint indices [] = {
+        0,3,1,
+        1,3,2
+    };
+
 
     GLuint VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, VBO);
+    glGenBuffers(1, EBO);
 
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, *VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     return VAO;
 }
@@ -145,10 +154,12 @@ int main (int argc, char *argv[]) {
 
     glfwSetFramebufferSizeCallback(window, &onChangeFramebufferSize);
 
-    GLuint VBO;
-    GLuint VAO = createVertexData(&VBO);
+    GLuint VBO, EBO;
+    GLuint VAO = createVertexData(&VBO, &EBO);
     GLuint shader = createProgram();
-
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_BACK);
 
     while (!glfwWindowShouldClose(window)) { //Loop until user closes the window
         // Handle Input
@@ -162,6 +173,8 @@ int main (int argc, char *argv[]) {
     }
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
+    glDeleteVertexArrays(1, &EBO);
+    glDeleteProgram(shader);
 
     glfwTerminate();
     return 0;
