@@ -26,14 +26,18 @@ void render(GLuint VAO, GLuint shader) {
     clearScreen();
     glUseProgram(shader);
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 GLuint createVertexData(GLuint* VBO) {
     float vertices [] = {
-        -.5f, -.5f, .0f,
+        .5f, .5f, .0f,
         .5f, -.5f, .0f,
-        .0f, .5f, .0f
+        -.5f, .5f, .0f,
+
+        .5f, -.5f, .0f,
+        -.5f, -.5f, .0f,
+        -.5f, .5f, .0f
     };
 
     GLuint VAO;
