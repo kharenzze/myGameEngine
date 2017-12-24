@@ -4,46 +4,59 @@ project(myGameEngine)
 set(CMAKE_CXX_STANDARD 11)
 
 include_directories(
-        include
-        src/deps/glad
-        src/deps/glfw
+    include
+    src/deps/glad
+    src/deps/glfw
 )
+
+file(
+    GLOB_RECURSE
+    glfw_files
+    src/deps/glad/glad.c
+    src/deps/glfw/vulkan.c
+    src/deps/glfw/input.c
+    src/deps/glfw/context.c
+    src/deps/glfw/window.c
+    src/deps/glfw/init.c
+    src/deps/glfw/monitor.c
+)
+
 if (UNIX)
     file(
-            GLOB_RECURSE
-            glfw_os_dependences
-            src/deps/glfw/cocoa_init.m
-            src/deps/glfw/cocoa_joystick.m
-            src/deps/glfw/cocoa_monitor.m
-            src/deps/glfw/cocoa_time.c
-            src/deps/glfw/cocoa_window.m
-            src/deps/glfw/getopt.c
-            src/deps/glfw/posix_tls.c
-            src/deps/glfw/nsgl_context.m
-            src/deps/glfw/tinycthread.c
+        GLOB_RECURSE
+        glfw_os_dependences
+        src/deps/glfw/cocoa_init.m
+        src/deps/glfw/cocoa_joystick.m
+        src/deps/glfw/cocoa_monitor.m
+        src/deps/glfw/cocoa_time.c
+        src/deps/glfw/cocoa_window.m
+        src/deps/glfw/getopt.c
+        src/deps/glfw/posix_tls.c
+        src/deps/glfw/nsgl_context.m
+        src/deps/glfw/tinycthread.c
     )
     add_definitions(
-            -D_GLFW_COCOA
-            -D_GLFW_WGL
-            -D_GLFW_USE_OPENGL=1
+        -D_GLFW_COCOA
+        -D_GLFW_WGL
+        -D_GLFW_USE_OPENGL=1
     )
 elseif (WIN32)
     file(
-            GLOB_RECURSE
-            glfw_os_dependences
-            src/deps/glfw/wgl_context.c
-            src/deps/glfw/win32_init.c
-            src/deps/glfw/win32_joystick.c
-            src/deps/glfw/win32_monitor.c
-            src/deps/glfw/win32_time.c
-            src/deps/glfw/win32_tls.c
-            src/deps/glfw/win32_window.c
-            src/deps/glfw/egl_context.c
+        GLOB_RECURSE
+        glfw_os_dependences
+        src/deps/glfw/wgl_context.c
+        src/deps/glfw/win32_init.c
+        src/deps/glfw/win32_joystick.c
+        src/deps/glfw/win32_monitor.c
+        src/deps/glfw/win32_time.c
+        src/deps/glfw/win32_tls.c
+        src/deps/glfw/win32_window.c
+        src/deps/glfw/egl_context.c
     )
     add_definitions(
-            -D_GLFW_WIN32
-            -D_GLFW_WGL
-            -D_GLFW_USE_OPENGL=1
+        -D_GLFW_WIN32
+        -D_GLFW_WGL
+        -D_GLFW_USE_OPENGL=1
     )
 endif (UNIX)
 
@@ -55,25 +68,19 @@ file(
 )
 
 add_executable(myGameEngine
-        src/deps/glad/glad.c
-        src/deps/glfw/vulkan.c
-        src/deps/glfw/input.c
-        src/deps/glfw/context.c
-        src/deps/glfw/window.c
-        src/deps/glfw/init.c
-        src/deps/glfw/monitor.c
-        ${glfw_os_dependences}
-        ${my_files}
-        )
+    ${glfw_files}
+    ${glfw_os_dependences}
+    ${my_files}
+)
 
 if (UNIX)
     target_link_libraries(
-            myGameEngine
-            "-framework Cocoa"
-            "-framework AppKit"
-            "-framework CoreData"
-            "-framework Foundation"
-            "-framework IOKit"
-            "-framework CoreVideo"
+        myGameEngine
+        "-framework Cocoa"
+        "-framework AppKit"
+        "-framework CoreData"
+        "-framework Foundation"
+        "-framework IOKit"
+        "-framework CoreVideo"
     )
 endif (UNIX)
