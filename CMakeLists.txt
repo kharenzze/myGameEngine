@@ -27,7 +27,7 @@ if (UNIX)
             -D_GLFW_WGL
             -D_GLFW_USE_OPENGL=1
     )
-elseif(WIN32)
+elseif (WIN32)
     file(
             GLOB_RECURSE
             glfw_os_dependences
@@ -45,7 +45,7 @@ elseif(WIN32)
             -D_GLFW_WGL
             -D_GLFW_USE_OPENGL=1
     )
-endif(UNIX)
+endif (UNIX)
 
 
 file(
