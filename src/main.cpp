@@ -5,6 +5,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "shader.h"
+
 #include <iostream>
 
 void onChangeFramebufferSize(GLFWwindow* window, const int32_t width, const int32_t height) {
@@ -22,26 +24,23 @@ void clearScreen() {
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void render(GLuint VAO, GLuint shader) {
+void render(GLuint VAO, Shader& shader) {
     clearScreen();
-    glUseProgram(shader);
+    shader.use();
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 }
 
 GLuint createVertexData(GLuint* VBO, GLuint* EBO) {
     float vertices [] = {
-        .5f, .5f, .0f,
-        .5f, -.5f, .0f,
-        -.5f, -.5f, .0f,
-        -.5f, .5f, .0f,
+        -.5f, -.5f, .0f,    1, 0, 0,
+        0, .5f, .0f,        0, 1, 0,
+        .5f, -.5f, .0f,     0, 0, 1
     };
 
     GLuint indices [] = {
-        0,3,1,
-        1,3,2
+        0,2,1
     };
-
 
     GLuint VAO;
     glGenVertexArrays(1, &VAO);
@@ -56,8 +55,11 @@ GLuint createVertexData(GLuint* VBO, GLuint* EBO) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -65,66 +67,6 @@ GLuint createVertexData(GLuint* VBO, GLuint* EBO) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     return VAO;
-}
-
-bool checkShader(GLuint shader) {
-    int success;
-    char infoLog[512];
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(shader, 512, nullptr, infoLog);
-        std::cout << "Error Compiling Shader" << std::endl << infoLog << std::endl;
-
-        return false;
-    }
-    return true;
-}
-
-bool checkProgram(GLuint program) {
-    int success;
-    char infoLog[512];
-    glGetProgramiv(program, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(program, 512, nullptr, infoLog);
-        std::cout << "Error Linking Program" << std::endl << infoLog << std::endl;
-
-        return false;
-    }
-    return true;
-}
-
-GLuint createProgram() {
-    const char * vertexShaderSource = "#version 330 core\n"
-            "layout (location = 0) in vec3 aPos;\n"
-            "void main(){\n"
-            "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-            "}\0";
-
-    const char * fragmentShaderSource = "#version 330 core\n"
-            "out vec4 FragColor;\n"
-            "void main(){\n"
-            "   FragColor = vec4(0.2f, .7f, .2f, 1.0f);\n"
-            "}\0";
-
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-    glCompileShader(vertexShader);
-    checkShader(vertexShader);
-
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-    glCompileShader(fragmentShader);
-    checkShader(fragmentShader);
-
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-    checkProgram(shaderProgram);
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    return shaderProgram;
 }
 
 int main (int argc, char *argv[]) {
@@ -156,10 +98,12 @@ int main (int argc, char *argv[]) {
 
     GLuint VBO, EBO;
     GLuint VAO = createVertexData(&VBO, &EBO);
-    GLuint shader = createProgram();
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    Shader shader("../shader/shader.vert", "../shader/shader.frag");
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_CULL_FACE);
-    glEnable(GL_BACK);
+    glCullFace(GL_BACK);
 
     while (!glfwWindowShouldClose(window)) { //Loop until user closes the window
         // Handle Input
@@ -174,7 +118,6 @@ int main (int argc, char *argv[]) {
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
     glDeleteVertexArrays(1, &EBO);
-    glDeleteProgram(shader);
 
     glfwTerminate();
     return 0;

@@ -65,6 +65,7 @@ file(
     GLOB_RECURSE
     my_files
     src/main.cpp
+    src/shader.cpp
 )
 
 add_executable(myGameEngine
