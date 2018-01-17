@@ -1,4 +1,4 @@
-#version 330 core
+#version 330core
 out vec4 FragColor;
 in vec3 myColor;
 in vec3 myPos;
