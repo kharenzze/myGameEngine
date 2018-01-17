@@ -28,6 +28,9 @@ void render(GLuint VAO, Shader& shader) {
     clearScreen();
     shader.use();
     glBindVertexArray(VAO);
+    const auto t = glfwGetTime();
+    const float sin = .5f * glm::sin(t);
+    shader.set("sin", sin);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
 }
 
