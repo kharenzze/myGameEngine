@@ -24,7 +24,7 @@ void initConfiguration() {
     glCullFace(GL_BACK);
 }
 
-GLuint createTexture(const char* path, const int verticalFlip = 0) {
+GLuint createTexture(const char* path, const int verticalFlip = 0, const GLuint minMagFilterType = GL_LINEAR) {
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -32,8 +32,8 @@ GLuint createTexture(const char* path, const int verticalFlip = 0) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minMagFilterType);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, minMagFilterType);
 
     int width, height, nChannels;
     stbi_set_flip_vertically_on_load(!verticalFlip);
@@ -71,21 +71,32 @@ void render(const GLuint VAO, const Shader& shader, const GLuint text, const GLu
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, text2);
 
+    const auto t = glfwGetTime();
+    const float zoom = .4* glm::sin(t/2) + .5;
+    shader.set("zoom", zoom);
+
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
 }
 
 GLuint createVertexData(GLuint* VBO, GLuint* EBO) {
     float vertices [] = {
-        .5f, .5f, .0f,      1, 1, 0,    1,1,
-        .5f, -.5f, .0f,     1, 0, 0,    1,0,
-        -.5f, -.5f, .0f,    0, 1, 0,    0,0,
-        -.5f, .5f, .0f,     0, 0, 1,     0,1
+        1, 1, .0f,      1, 1, 0,    1,1,
+        1, .00001f, .0f,     1, 0, 0,    1,0,
+        .00001f, .00001f, .0f,    0, 1, 0,    0,0,
+        .00001f, 1, .0f,     0, 0, 1,     0,1,
+
+        0, 0, .0f,      1, 1, 0,    1,1,
+        0, -1, .0f,     1, 0, 0,    1,0,
+        -1, -1, .0f,    0, 1, 0,    0,0,
+        -1, 0, .0f,     0, 0, 1,     0,1
     };
 
     GLuint indices [] = {
         0,3,1,
-        1,3,2
+        1,3,2,
+        4,7,5,
+        5,7,6
     };
 
     GLuint VAO;
@@ -150,8 +161,8 @@ int main (int argc, char *argv[]) {
 
     Shader shader("../shader/shader.vert", "../shader/shader.frag");
 
-    const GLuint text = createTexture("../texture/perro_texto.jpg");
-    const GLuint text2 = createTexture("../texture/wood.jpg");
+    const GLuint text = createTexture("../texture/clay.jpg");
+    const GLuint text2 = createTexture("../texture/clay.jpg", false, GL_NEAREST);
 
     initConfiguration();
 
