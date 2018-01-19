@@ -18,7 +18,13 @@ constexpr float maxFramePeriod = 1 / maxFPS;
 constexpr double maxFPSDouble = 60.0;
 constexpr double maxFramePeriodDouble = 1 / maxFPSDouble;
 
-GLuint createTexture(const char* path) {
+void initConfiguration() {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+}
+
+GLuint createTexture(const char* path, const int verticalFlip = 0) {
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -30,6 +36,7 @@ GLuint createTexture(const char* path) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     int width, height, nChannels;
+    stbi_set_flip_vertically_on_load(!verticalFlip);
     unsigned char* data = stbi_load(path, &width, &height, &nChannels, 0);
     if (data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -143,12 +150,10 @@ int main (int argc, char *argv[]) {
 
     Shader shader("../shader/shader.vert", "../shader/shader.frag");
 
-    const GLuint text = createTexture("../texture/clay.jpg");
+    const GLuint text = createTexture("../texture/perro_texto.jpg");
     const GLuint text2 = createTexture("../texture/wood.jpg");
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    initConfiguration();
 
     shader.use();
     shader.set("texture1", 0);
