@@ -18,6 +18,9 @@ constexpr float maxFramePeriod = 1 / maxFPS;
 constexpr double maxFPSDouble = 60.0;
 constexpr double maxFramePeriodDouble = 1 / maxFPSDouble;
 
+float interpolation = 0;
+constexpr float interpolationRate = 0.01f;
+
 void initConfiguration() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_CULL_FACE);
@@ -55,6 +58,15 @@ void handleInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        if (interpolation < 1) {
+            interpolation +=interpolationRate;
+        }
+    } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        if (interpolation > 0) {
+            interpolation -=interpolationRate;
+        }
+    }
 }
 
 void clearScreen() {
@@ -70,6 +82,8 @@ void render(const GLuint VAO, const Shader& shader, const GLuint text, const GLu
     glBindTexture(GL_TEXTURE_2D, text);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, text2);
+
+    shader.set("texture_interpolation", interpolation);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
