@@ -7,7 +7,32 @@
 
 #include "shader.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 #include <iostream>
+
+GLuint createTexture(const char* path) {
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int width, height, nChannels;
+    unsigned char* data = stbi_load(path, &width, &height, &nChannels, 0);
+    if (data) {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    } else {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    return texture;
+}
 
 void onChangeFramebufferSize(GLFWwindow* window, const int32_t width, const int32_t height) {
     glViewport(0, 0, width, height);
@@ -24,22 +49,30 @@ void clearScreen() {
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void render(GLuint VAO, Shader& shader) {
+void render(const GLuint VAO, const Shader& shader, const GLuint text, const GLuint text2) {
     clearScreen();
     shader.use();
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, text);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, text2);
+
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
 GLuint createVertexData(GLuint* VBO, GLuint* EBO) {
     float vertices [] = {
-        -.5f, -.5f, .0f,    1, 0, 0,
-        0, .5f, .0f,        0, 1, 0,
-        .5f, -.5f, .0f,     0, 0, 1
+        .5f, .5f, .0f,      1, 1, 0,    1,1,
+        .5f, -.5f, .0f,     1, 0, 0,    1,0,
+        -.5f, -.5f, .0f,    0, 1, 0,    0,0,
+        -.5f, .5f, .0f,     0, 0, 1,     0,1
     };
 
     GLuint indices [] = {
-        0,2,1
+        0,3,1,
+        1,3,2
     };
 
     GLuint VAO;
@@ -55,11 +88,14 @@ GLuint createVertexData(GLuint* VBO, GLuint* EBO) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *) (3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -101,15 +137,22 @@ int main (int argc, char *argv[]) {
 
     Shader shader("../shader/shader.vert", "../shader/shader.frag");
 
+    const GLuint text = createTexture("../texture/clay.jpg");
+    const GLuint text2 = createTexture("../texture/wood.jpg");
+
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+
+    shader.use();
+    shader.set("texture1", 0);
+    shader.set("texture2", 1);
 
     while (!glfwWindowShouldClose(window)) { //Loop until user closes the window
         // Handle Input
         handleInput(window);
         //Render Here
-        render(VAO, shader);
+        render(VAO, shader, text, text2);
         //Swap front and back buffers
         glfwSwapBuffers(window);
         // Poll for and process events
@@ -118,6 +161,9 @@ int main (int argc, char *argv[]) {
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
     glDeleteVertexArrays(1, &EBO);
+
+    glDeleteTextures(1, &text);
+    glDeleteTextures(1, &text2);
 
     glfwTerminate();
     return 0;
