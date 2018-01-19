@@ -137,7 +137,7 @@ int main (int argc, char *argv[]) {
 
     Shader shader("../shader/shader.vert", "../shader/shader.frag");
 
-    const GLuint text = createTexture("../texture/clay.jpg");
+    const GLuint text = createTexture("../texture/perro_texto.jpg");
     const GLuint text2 = createTexture("../texture/wood.jpg");
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
