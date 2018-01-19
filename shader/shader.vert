@@ -7,7 +7,7 @@ out vec3 myColor;
 out vec2 textCord;
 
 void main(){
-   gl_Position = vec4(aPos, 1.0);
-   myColor = aColor;
-   textCord = aTextCord;
+    gl_Position = vec4(aPos, 1.0);
+    myColor = aColor;
+    textCord = aTextCord;
 }
