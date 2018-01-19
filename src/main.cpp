@@ -12,6 +12,12 @@
 
 #include <iostream>
 
+constexpr float maxFPS = 60.0f;
+constexpr float maxFramePeriod = 1 / maxFPS;
+
+constexpr double maxFPSDouble = 60.0;
+constexpr double maxFramePeriodDouble = 1 / maxFPSDouble;
+
 GLuint createTexture(const char* path) {
     GLuint texture;
     glGenTextures(1, &texture);
@@ -148,15 +154,22 @@ int main (int argc, char *argv[]) {
     shader.set("texture1", 0);
     shader.set("texture2", 1);
 
+    double lastFrameTime = 0;
+
     while (!glfwWindowShouldClose(window)) { //Loop until user closes the window
-        // Handle Input
-        handleInput(window);
-        //Render Here
-        render(VAO, shader, text, text2);
-        //Swap front and back buffers
-        glfwSwapBuffers(window);
-        // Poll for and process events
-        glfwPollEvents();
+        const auto currentTime = glfwGetTime();
+        const auto dt = currentTime - lastFrameTime;
+        if (dt > maxFramePeriodDouble) {
+            lastFrameTime += dt;
+            // Handle Input
+            handleInput(window);
+            //Render Here
+            render(VAO, shader, text, text2);
+            //Swap front and back buffers
+            glfwSwapBuffers(window);
+            // Poll for and process events
+            glfwPollEvents();
+        }
     }
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
