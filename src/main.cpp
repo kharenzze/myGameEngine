@@ -11,6 +11,7 @@
 
 #include "shader.h"
 #include "Utils.h"
+#include "Camera.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -25,6 +26,8 @@ constexpr double maxFramePeriodDouble = 1 / maxFPSDouble;
 
 constexpr GLuint K_SCREEN_WIDTH = 800;
 constexpr GLuint K_SCREEN_HEIGHT = 800;
+
+Camera camera(2.0f, glm::vec3(0,0,-3));
 
 const glm::vec3 cubePositions[] = {
     glm::vec3(1.0f, 1.0f, 1.0f),
@@ -74,12 +77,29 @@ void onChangeFramebufferSize(GLFWwindow* window, const int32_t width, const int3
     glViewport(0, 0, width, height);
 }
 
-void handleInput(GLFWwindow* window) {
+void handleInput(GLFWwindow* window,const float dt) {
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
+        return;
     }
-}
 
+    auto cameraMovement = glm::vec3(0);
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        cameraMovement += cameraFront;
+    } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        cameraMovement -= cameraFront;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        cameraMovement += cameraRight;
+    } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        cameraMovement -= cameraRight;
+    }
+
+    camera.pos -= cameraMovement * camera.speed * dt;
+}
 void clearScreen() {
     glClearColor(.2f, .2f, .7f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -92,13 +112,8 @@ void render(const GLuint VAO, const Shader& shader, const GLuint text) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, text);
 
-    const float radius = 10.0f;
-    const float camX = sin(_glfwGetTimeFloat()) * radius;
-    const float camZ = cos(_glfwGetTimeFloat()) * radius;
 
-    const auto view = glm::lookAt(glm::vec3(camX, 0, camZ),
-                                    glm::vec3(0, 0, 0),
-                                    glm::vec3(0, 1.0f, 0));
+    const auto view = camera.getViewMatrix();
 
     auto projection = glm::perspective(glm::radians(45.0f), (float)K_SCREEN_WIDTH/(float)K_SCREEN_HEIGHT, 0.1f, 100.0f);
 
@@ -110,7 +125,7 @@ void render(const GLuint VAO, const Shader& shader, const GLuint text) {
 
     for (GLuint i = 0; i < 10; i++) {
         auto angle = glm::radians(10.0f + 20.0f * i);
-        auto model = glm::translate(identity4, cubePositions[i]);
+        auto model = glm::translate(IDENTITY_4, cubePositions[i]);
         model = glm::rotate(model, _glfwGetTimeFloat() * angle, glm::vec3(1.0f, 0.5f, 0));
         shader.set("model", model);
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
@@ -234,7 +249,7 @@ int main (int argc, char *argv[]) {
         if (dt > maxFramePeriodDouble) {
             lastFrameTime += dt;
             // Handle Input
-            handleInput(window);
+            handleInput(window, dt);
             //Render Here
             render(VAO, shader, text);
             //Swap front and back buffers

@@ -66,6 +66,7 @@ file(
     my_files
     src/main.cpp
     src/shader.cpp
+    src/Camera.cpp
 )
 
 add_executable(myGameEngine
