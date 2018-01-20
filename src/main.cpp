@@ -69,14 +69,12 @@ void clearScreen() {
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void render(const GLuint VAO, const Shader& shader, const GLuint text, const GLuint text2) {
+void render(const GLuint VAO, const Shader& shader, const GLuint text) {
     clearScreen();
     shader.use();
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, text);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, text2);
 
     auto model = glm::mat4(1.0f);
     model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, .0f, .0f));
@@ -91,20 +89,49 @@ void render(const GLuint VAO, const Shader& shader, const GLuint text, const GLu
     shader.set("projection", projection);
 
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 }
 
 GLuint createVertexData(GLuint* VBO, GLuint* EBO) {
     float vertices [] = {
-        .5f, .5f, .0f,      1, 1, 0,    1,1,
-        .5f, -.5f, .0f,     1, 0, 0,    1,0,
-        -.5f, -.5f, .0f,    0, 1, 0,    0,0,
-        -.5f, .5f, .0f,     0, 0, 1,     0,1
+        .5f, .5f, .5f,      1,1,//front
+        .5f, -.5f, .5f,     1,0,
+        -.5f, -.5f, .5f,    0,0,
+        -.5f, .5f, .5f,     0,1,
+
+        .5f, .5f, -.5f,      0,1,//back
+        .5f, -.5f, -.5f,     0,0,
+        -.5f, -.5f, -.5f,    1,0,
+        -.5f, .5f, -.5f,     1,1,
+
+        .5f, -.5f, .5f,     0,0,//Rigth
+        .5f, -.5f, -.5f,     1,0,
+        .5f, .5f, -.5f,      1,1,
+        .5f, .5f, .5f,      0,1,
+
+        -.5f, -.5f, .5f,     1,0,//left
+        -.5f, -.5f, -.5f,     0,0,
+        -.5f, .5f, -.5f,      0,1,
+        -.5f, .5f, .5f,      1,1,
+
+        .5f, .5f, .5f,      1,0,//top
+        .5f, .5f, -.5f,     1,1,
+        -.5f, .5f, .5f,     0,0,
+        -.5f, .5f, -.5f,    0,1,
+
+        .5f, -.5f, .5f,      1,1,//bottom
+        .5f, -.5f, -.5f,     1,0,
+        -.5f, -.5f, .5f,     0,1,
+        -.5f, -.5f, -.5f,    0,0,
     };
 
     GLuint indices [] = {
-        0,3,1,
-        1,3,2
+        0,3,1,  1,3,2,
+        7,4,6,  6,4,5,
+        10,11,9,  9,11,8,
+        15,14,12,  12,14,13,
+        17,19,16,  16,19,18,
+        20,22,21,  21,22,23,
     };
 
     GLuint VAO;
@@ -120,14 +147,11 @@ GLuint createVertexData(GLuint* VBO, GLuint* EBO) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *) (6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -170,13 +194,11 @@ int main (int argc, char *argv[]) {
     Shader shader("../shader/shader.vert", "../shader/shader.frag");
 
     const GLuint text = createTexture("../texture/perro_texto.jpg");
-    const GLuint text2 = createTexture("../texture/wood.jpg");
 
     initConfiguration();
 
     shader.use();
     shader.set("texture1", 0);
-    shader.set("texture2", 1);
 
     double lastFrameTime = 0;
 
@@ -188,7 +210,7 @@ int main (int argc, char *argv[]) {
             // Handle Input
             handleInput(window);
             //Render Here
-            render(VAO, shader, text, text2);
+            render(VAO, shader, text);
             //Swap front and back buffers
             glfwSwapBuffers(window);
             // Poll for and process events
@@ -200,7 +222,6 @@ int main (int argc, char *argv[]) {
     glDeleteVertexArrays(1, &EBO);
 
     glDeleteTextures(1, &text);
-    glDeleteTextures(1, &text2);
 
     glfwTerminate();
     return 0;
