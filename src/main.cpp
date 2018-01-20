@@ -5,6 +5,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "shader.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -17,6 +21,9 @@ constexpr float maxFramePeriod = 1 / maxFPS;
 
 constexpr double maxFPSDouble = 60.0;
 constexpr double maxFramePeriodDouble = 1 / maxFPSDouble;
+
+constexpr GLuint K_SCREEN_WIDTH = 800;
+constexpr GLuint K_SCREEN_HEIGHT = 800;
 
 void initConfiguration() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -70,6 +77,18 @@ void render(const GLuint VAO, const Shader& shader, const GLuint text, const GLu
     glBindTexture(GL_TEXTURE_2D, text);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, text2);
+
+    auto model = glm::mat4(1.0f);
+    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, .0f, .0f));
+
+    auto view =  glm::mat4(1.0f);
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+    auto projection = glm::perspective(glm::radians(45.0f), (float)K_SCREEN_WIDTH/(float)K_SCREEN_HEIGHT, 0.1f, 100.0f);
+
+    shader.set("model", model);
+    shader.set("view", view);
+    shader.set("projection", projection);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
@@ -130,7 +149,7 @@ int main (int argc, char *argv[]) {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  //Core Profile
 
     GLFWwindow* window;    //Create a windowed mode window and its OpenGL context
-    window = glfwCreateWindow(800, 600, "New Window", nullptr, nullptr);
+    window = glfwCreateWindow(K_SCREEN_WIDTH, K_SCREEN_HEIGHT, "New Window", nullptr, nullptr);
     if (!window) {
         std::cout << "Failed To Create GLFW Window" << std::endl;
         glfwTerminate();
