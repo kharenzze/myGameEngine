@@ -10,6 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "shader.h"
+#include "Utils.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -91,8 +92,13 @@ void render(const GLuint VAO, const Shader& shader, const GLuint text) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, text);
 
-    auto view =  glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -10.0f));
+    const float radius = 10.0f;
+    const float camX = sin(_glfwGetTimeFloat()) * radius;
+    const float camZ = cos(_glfwGetTimeFloat()) * radius;
+
+    const auto view = glm::lookAt(glm::vec3(camX, 0, camZ),
+                                    glm::vec3(0, 0, 0),
+                                    glm::vec3(0, 1.0f, 0));
 
     auto projection = glm::perspective(glm::radians(45.0f), (float)K_SCREEN_WIDTH/(float)K_SCREEN_HEIGHT, 0.1f, 100.0f);
 
@@ -101,11 +107,11 @@ void render(const GLuint VAO, const Shader& shader, const GLuint text) {
 
     glBindVertexArray(VAO);
 
-    const auto identity4 = glm::mat4(1.0f);
+
     for (GLuint i = 0; i < 10; i++) {
         auto angle = glm::radians(10.0f + 20.0f * i);
         auto model = glm::translate(identity4, cubePositions[i]);
-        model = glm::rotate(model, (float)glfwGetTime() * angle, glm::vec3(1.0f, 0.5f, 0));
+        model = glm::rotate(model, _glfwGetTimeFloat() * angle, glm::vec3(1.0f, 0.5f, 0));
         shader.set("model", model);
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
     }
