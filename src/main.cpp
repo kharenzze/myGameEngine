@@ -77,7 +77,7 @@ void render(const GLuint VAO, const Shader& shader, const GLuint text) {
     glBindTexture(GL_TEXTURE_2D, text);
 
     auto model = glm::mat4(1.0f);
-    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, .0f, .0f));
+    model = glm::rotate(model, (float)glfwGetTime() * glm::radians(-55.0f), glm::vec3(.5f, 1.0f, .0f));
 
     auto view =  glm::mat4(1.0f);
     view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
