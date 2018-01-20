@@ -25,10 +25,25 @@ constexpr double maxFramePeriodDouble = 1 / maxFPSDouble;
 constexpr GLuint K_SCREEN_WIDTH = 800;
 constexpr GLuint K_SCREEN_HEIGHT = 800;
 
+const glm::vec3 cubePositions[] = {
+    glm::vec3(1.0f, 1.0f, 1.0f),
+    glm::vec3(-1.0f, -1.5f, 1.0f),
+    glm::vec3(2.0f, 1.0f, 2.0f),
+    glm::vec3(1.0f, 1.5f, -3.0f),
+    glm::vec3(-1.0f, 3.0f, 1.0f),
+    glm::vec3(-1.5f, -1.0f,-2.0f),
+    glm::vec3(-2.0f, -2.0f, 1.0f),
+    glm::vec3(1.0f, -1.0f, 1.0f),
+    glm::vec3(-1.0f, -1.0f, 0.0f),
+    glm::vec3(-0.5f, 3.0f, -1.0f),
+};
+
 void initConfiguration() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+    glDepthFunc(GL_LESS);
+    glEnable(GL_DEPTH_TEST);
 }
 
 GLuint createTexture(const char* path, const int verticalFlip = 0) {
@@ -66,7 +81,7 @@ void handleInput(GLFWwindow* window) {
 
 void clearScreen() {
     glClearColor(.2f, .2f, .7f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void render(const GLuint VAO, const Shader& shader, const GLuint text) {
@@ -76,20 +91,25 @@ void render(const GLuint VAO, const Shader& shader, const GLuint text) {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, text);
 
-    auto model = glm::mat4(1.0f);
-    model = glm::rotate(model, (float)glfwGetTime() * glm::radians(-55.0f), glm::vec3(.5f, 1.0f, .0f));
-
     auto view =  glm::mat4(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -10.0f));
 
     auto projection = glm::perspective(glm::radians(45.0f), (float)K_SCREEN_WIDTH/(float)K_SCREEN_HEIGHT, 0.1f, 100.0f);
 
-    shader.set("model", model);
     shader.set("view", view);
     shader.set("projection", projection);
 
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+
+    const auto identity4 = glm::mat4(1.0f);
+    for (GLuint i = 0; i < 10; i++) {
+        auto angle = glm::radians(10.0f + 20.0f * i);
+        auto model = glm::translate(identity4, cubePositions[i]);
+        model = glm::rotate(model, (float)glfwGetTime() * angle, glm::vec3(1.0f, 0.5f, 0));
+        shader.set("model", model);
+        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+    }
+
 }
 
 GLuint createVertexData(GLuint* VBO, GLuint* EBO) {
