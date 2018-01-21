@@ -12,6 +12,7 @@
 #include "shader.h"
 #include "Utils.h"
 #include "Camera.h"
+#include "Mouse.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -27,7 +28,9 @@ constexpr double maxFramePeriodDouble = 1 / maxFPSDouble;
 constexpr GLuint K_SCREEN_WIDTH = 800;
 constexpr GLuint K_SCREEN_HEIGHT = 800;
 
-Camera camera(2.0f, glm::vec3(0,0,-3));
+Camera camera(2.0f, glm::vec3(0,0,-3), 45.0f);
+Mouse mouse;
+bool firstMouse = true;
 
 const glm::vec3 cubePositions[] = {
     glm::vec3(1.0f, 1.0f, 1.0f),
@@ -87,19 +90,35 @@ void handleInput(GLFWwindow* window,const float dt) {
     auto cameraMovement = glm::vec3(0);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cameraMovement += cameraFront;
+        cameraMovement += camera.getFront();
     } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        cameraMovement -= cameraFront;
+        cameraMovement -= camera.getFront();
     }
 
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        cameraMovement += cameraRight;
+        cameraMovement += camera.getRight();
     } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        cameraMovement -= cameraRight;
+        cameraMovement -= camera.getRight();
     }
 
     camera.pos -= cameraMovement * camera.speed * dt;
 }
+
+void onScroll(GLFWwindow* window, double xoffset, double yOffset) {
+    camera.moveFov(-yOffset);
+}
+
+void onMouse(GLFWwindow* window, double xPos, double yPos) {
+    mouse.setPos(glm::vec2(xPos, yPos));
+    if (firstMouse) {
+        firstMouse = false;
+        return;
+    }
+    auto dMouse = mouse.getDelta();
+    auto r = glm::vec3(dMouse.y, dMouse.x, 0) * mouse.sensitivity;
+    camera.addRotation(r);
+}
+
 void clearScreen() {
     glClearColor(.2f, .2f, .7f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -115,7 +134,7 @@ void render(const GLuint VAO, const Shader& shader, const GLuint text) {
 
     const auto view = camera.getViewMatrix();
 
-    auto projection = glm::perspective(glm::radians(45.0f), (float)K_SCREEN_WIDTH/(float)K_SCREEN_HEIGHT, 0.1f, 100.0f);
+    auto projection = glm::perspective(glm::radians(camera.getFov()), (float)K_SCREEN_WIDTH/(float)K_SCREEN_HEIGHT, 0.1f, 100.0f);
 
     shader.set("view", view);
     shader.set("projection", projection);
@@ -228,6 +247,10 @@ int main (int argc, char *argv[]) {
     }
 
     glfwSetFramebufferSizeCallback(window, &onChangeFramebufferSize);
+
+    glfwSetCursorPosCallback(window, onMouse);
+    glfwSetScrollCallback(window, onScroll);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     GLuint VBO, EBO;
     GLuint VAO = createVertexData(&VBO, &EBO);
