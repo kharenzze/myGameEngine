@@ -13,6 +13,7 @@
 #include "Utils.h"
 #include "Camera.h"
 #include "Mouse.h"
+#include "Cube.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -152,75 +153,6 @@ void render(const GLuint VAO, const Shader& shader, const GLuint text) {
 
 }
 
-GLuint createVertexData(GLuint* VBO, GLuint* EBO) {
-    float vertices [] = {
-        .5f, .5f, .5f,      1,1,//front
-        .5f, -.5f, .5f,     1,0,
-        -.5f, -.5f, .5f,    0,0,
-        -.5f, .5f, .5f,     0,1,
-
-        .5f, .5f, -.5f,      0,1,//back
-        .5f, -.5f, -.5f,     0,0,
-        -.5f, -.5f, -.5f,    1,0,
-        -.5f, .5f, -.5f,     1,1,
-
-        .5f, -.5f, .5f,     0,0,//Rigth
-        .5f, -.5f, -.5f,     1,0,
-        .5f, .5f, -.5f,      1,1,
-        .5f, .5f, .5f,      0,1,
-
-        -.5f, -.5f, .5f,     1,0,//left
-        -.5f, -.5f, -.5f,     0,0,
-        -.5f, .5f, -.5f,      0,1,
-        -.5f, .5f, .5f,      1,1,
-
-        .5f, .5f, .5f,      1,0,//top
-        .5f, .5f, -.5f,     1,1,
-        -.5f, .5f, .5f,     0,0,
-        -.5f, .5f, -.5f,    0,1,
-
-        .5f, -.5f, .5f,      1,1,//bottom
-        .5f, -.5f, -.5f,     1,0,
-        -.5f, -.5f, .5f,     0,1,
-        -.5f, -.5f, -.5f,    0,0,
-    };
-
-    GLuint indices [] = {
-        0,3,1,  1,3,2,
-        7,4,6,  6,4,5,
-        10,11,9,  9,11,8,
-        15,14,12,  12,14,13,
-        17,19,16,  16,19,18,
-        20,22,21,  21,22,23,
-    };
-
-    GLuint VAO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, VBO);
-    glGenBuffers(1, EBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    return VAO;
-}
-
 int main (int argc, char *argv[]) {
 
     if (!glfwInit()) {       //Initialize the library
@@ -253,7 +185,7 @@ int main (int argc, char *argv[]) {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     GLuint VBO, EBO;
-    GLuint VAO = createVertexData(&VBO, &EBO);
+    GLuint VAO = Cube::createVertexData(&VBO, &EBO, ZERO3, 0.5f);
 
     Shader shader("../shader/shader.vert", "../shader/shader.frag");
 
