@@ -144,7 +144,7 @@ void render(const GLuint VAO, const Shader& shader, const GLuint text) {
 
 
     for (GLuint i = 0; i < 10; i++) {
-        auto angle = glm::radians(10.0f + 20.0f * i);
+        auto angle = i < 5 ? glm::radians(10.0f + 20.0f * i) : 0;
         auto model = glm::translate(IDENTITY_4, cubePositions[i]);
         model = glm::rotate(model, _glfwGetTimeFloat() * angle, glm::vec3(1.0f, 0.5f, 0));
         shader.set("model", model);
