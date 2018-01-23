@@ -82,3 +82,11 @@ void Camera::_calculateFront() {
 glm::vec3 Camera::getRight() const {
     return glm::cross(_front, UP);
 }
+
+glm::vec3 Camera::getFPSFront() const {
+    return glm::normalize(vec3(_front.x, 0, _front.z));
+}
+
+glm::vec3 Camera::getFPSRight() const {
+    return glm::cross(getFPSFront(), UP);
+}
