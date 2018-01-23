@@ -29,21 +29,21 @@ constexpr double maxFramePeriodDouble = 1 / maxFPSDouble;
 constexpr GLuint K_SCREEN_WIDTH = 800;
 constexpr GLuint K_SCREEN_HEIGHT = 800;
 
-Camera camera(2.0f, glm::vec3(0,0,-3), 45.0f);
+Camera camera(2.0f, glm::vec3(0,1,-3), 45.0f);
 Mouse mouse;
 bool firstMouse = true;
 
 const glm::vec3 cubePositions[] = {
-    glm::vec3(1.0f, 1.0f, 1.0f),
-    glm::vec3(-1.0f, -1.5f, 1.0f),
-    glm::vec3(2.0f, 1.0f, 2.0f),
-    glm::vec3(1.0f, 1.5f, -3.0f),
-    glm::vec3(-1.0f, 3.0f, 1.0f),
-    glm::vec3(-1.5f, -1.0f,-2.0f),
-    glm::vec3(-2.0f, -2.0f, 1.0f),
-    glm::vec3(1.0f, -1.0f, 1.0f),
-    glm::vec3(-1.0f, -1.0f, 0.0f),
-    glm::vec3(-0.5f, 3.0f, -1.0f),
+    glm::vec3(1.0f, 0.0f, 4.0f),
+    glm::vec3(-1.0f, 0.0f, 1.0f),
+    glm::vec3(2.0f, 0.0f, 2.0f),
+    glm::vec3(1.0f, 0.0f, -3.0f),
+    glm::vec3(-1.0f, 0.0f, 1.0f),
+    glm::vec3(-1.5f, 0.0f,-2.0f),
+    glm::vec3(-2.0f, 0.0f, 1.0f),
+    glm::vec3(1.0f, 0.0f, 1.0f),
+    glm::vec3(-1.0f, 0.0f, 0.0f),
+    glm::vec3(-0.5f, 0.0f, -1.0f),
 };
 
 void initConfiguration() {
@@ -125,7 +125,7 @@ void clearScreen() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void render(const GLuint VAO, const Shader& shader, const GLuint text) {
+void render(const GLuint VAO, const Shader& shader, const GLuint text, const GLuint text2) {
     clearScreen();
     shader.use();
 
@@ -134,7 +134,6 @@ void render(const GLuint VAO, const Shader& shader, const GLuint text) {
 
 
     const auto view = camera.getViewMatrix();
-
     auto projection = glm::perspective(glm::radians(camera.getFov()), (float)K_SCREEN_WIDTH/(float)K_SCREEN_HEIGHT, 0.1f, 100.0f);
 
     shader.set("view", view);
@@ -142,15 +141,19 @@ void render(const GLuint VAO, const Shader& shader, const GLuint text) {
 
     glBindVertexArray(VAO);
 
-
     for (GLuint i = 0; i < 10; i++) {
-        auto angle = glm::radians(10.0f + 20.0f * i);
         auto model = glm::translate(IDENTITY_4, cubePositions[i]);
-        model = glm::rotate(model, _glfwGetTimeFloat() * angle, glm::vec3(1.0f, 0.5f, 0));
         shader.set("model", model);
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
     }
 
+    //draw floor
+
+    auto model = glm::scale(IDENTITY_4, glm::vec3(20, 1, 20));
+    model = glm::translate(model, glm::vec3(0, -1, 0));
+    shader.set("model", model);
+    glBindTexture(GL_TEXTURE_2D, text2);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 }
 
 int main (int argc, char *argv[]) {
@@ -185,11 +188,13 @@ int main (int argc, char *argv[]) {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     GLuint VBO, EBO;
-    GLuint VAO = Cube::createVertexData(&VBO, &EBO, ZERO3, 0.5f);
+    const auto cubeRadius = 0.5f;
+    GLuint VAO = Cube::createVertexData(&VBO, &EBO, glm::vec3(0, -cubeRadius, 0), cubeRadius);
 
     Shader shader("../shader/shader.vert", "../shader/shader.frag");
 
     const GLuint text = createTexture("../texture/perro_texto.jpg");
+    const GLuint text2 = createTexture("../texture/clay.jpg");
 
     initConfiguration();
 
@@ -206,7 +211,7 @@ int main (int argc, char *argv[]) {
             // Handle Input
             handleInput(window, dt);
             //Render Here
-            render(VAO, shader, text);
+            render(VAO, shader, text, text2);
             //Swap front and back buffers
             glfwSwapBuffers(window);
             // Poll for and process events
