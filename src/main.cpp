@@ -145,8 +145,8 @@ void render(const GLuint VAO, const Shader& shader, const GLuint text) {
 
     for (GLuint i = 0; i < 10; i++) {
         auto angle = glm::radians(10.0f + 20.0f * i);
-        auto model = glm::translate(IDENTITY_4, cubePositions[i]);
-        model = glm::rotate(model, _glfwGetTimeFloat() * angle, glm::vec3(1.0f, 0.5f, 0));
+        auto model = glm::rotate(IDENTITY_4, _glfwGetTimeFloat() * angle, glm::vec3(1.0f, 0.5f, 0));
+        model = glm::translate(model, cubePositions[i]);
         shader.set("model", model);
         glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
     }
