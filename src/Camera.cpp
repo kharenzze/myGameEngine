@@ -29,9 +29,24 @@ Camera::Camera(const float speed, const vec3 &pos, const float fov = 45.0f) {
 }
 
 glm::mat4 Camera::getViewMatrix() const {
-    return glm::lookAt(pos,
-                pos - _front,
-                cameraUp);
+    vec3 const f(-_front);
+    vec3 const s(normalize(cross(f, cameraUp)));
+    vec3 const u(cross(s, f));
+
+    glm::mat4 Result(1);
+    Result[0][0] = s.x;
+    Result[1][0] = s.y;
+    Result[2][0] = s.z;
+    Result[0][1] = u.x;
+    Result[1][1] = u.y;
+    Result[2][1] = u.z;
+    Result[0][2] =-f.x;
+    Result[1][2] =-f.y;
+    Result[2][2] =-f.z;
+    Result[3][0] =-dot(s, pos);
+    Result[3][1] =-dot(u, pos);
+    Result[3][2] = dot(f, pos);
+    return Result;
 }
 
 float Camera::getFov() const {
