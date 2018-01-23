@@ -29,21 +29,20 @@ constexpr double maxFramePeriodDouble = 1 / maxFPSDouble;
 constexpr GLuint K_SCREEN_WIDTH = 800;
 constexpr GLuint K_SCREEN_HEIGHT = 800;
 
-Camera camera(2.0f, glm::vec3(0,0,-3), 45.0f);
+Camera camera(2.0f, glm::vec3(0,0,-7), 45.0f);
 Mouse mouse;
 bool firstMouse = true;
 
 const glm::vec3 cubePositions[] = {
-    glm::vec3(1.0f, 1.0f, 1.0f),
-    glm::vec3(-1.0f, -1.5f, 1.0f),
-    glm::vec3(2.0f, 1.0f, 2.0f),
-    glm::vec3(1.0f, 1.5f, -3.0f),
-    glm::vec3(-1.0f, 3.0f, 1.0f),
-    glm::vec3(-1.5f, -1.0f,-2.0f),
-    glm::vec3(-2.0f, -2.0f, 1.0f),
-    glm::vec3(1.0f, -1.0f, 1.0f),
+    glm::vec3(0.0f, 0.0f, 0.0f),
+    glm::vec3(1.0f, 1.0f, 0.0f),
+    glm::vec3(2.0f, 2.0f, 0.0f),
     glm::vec3(-1.0f, -1.0f, 0.0f),
-    glm::vec3(-0.5f, 3.0f, -1.0f),
+    glm::vec3(-2.0f, -2.0f, 0.0f),
+    glm::vec3(1.0f, -1.0f, 0.0f),
+    glm::vec3(2.0f, -2.0f, 0.0f),
+    glm::vec3(-1.0f, 1.0f, 0.0f),
+    glm::vec3(-2.0f, 2.0f, 0.0f),
 };
 
 void initConfiguration() {
