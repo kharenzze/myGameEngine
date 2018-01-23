@@ -24,6 +24,8 @@ public:
     void addRotation(const glm::vec3 &rotation);
     glm::vec3 getFront() const;
     glm::vec3 getRight() const;
+    glm::vec3 getFPSFront() const;
+    glm::vec3 getFPSRight() const;
 
     glm::vec3 pos;
     float speed;
