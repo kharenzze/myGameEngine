@@ -21,7 +21,7 @@ float inline _glfwGetTimeFloat() {
 }
 
 void inline printVector3(const char* name, const glm::vec3 &v) {
-    printf("%s: x: %f, y: %f, z: %f\n", name, &v.x, &v.y, &v.z);
+    printf("%s: x: %f, y: %f, z: %f\n", name, v.x, v.y, v.z);
 }
 
 #endif //MYGAMEENGINE_UTILS_H
