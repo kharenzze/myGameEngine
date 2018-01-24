@@ -7,36 +7,36 @@
 using glm::vec3;
 using glm::vec2;
 
-static constexpr GLuint _vertexMap[] = {
-        1, 1, 1,      1,1,//front
-        1, 0, 1,     1,0,
-        0, 0, 1,    0,0,
-        0, 1, 1,     0,1,
+static constexpr int _vertexMap[] = {
+        1, 1, 1,      1,1,      0,0,1,//front
+        1, 0, 1,     1,0,       0,0,1,
+        0, 0, 1,    0,0,        0,0,1,
+        0, 1, 1,     0,1,       0,0,1,
 
-        1, 1, 0,      0,1,//back
-        1, 0, 0,     0,0,
-        0, 0, 0,    1,0,
-        0, 1, 0,     1,1,
+        1, 1, 0,      0,1,      0,0,-1,//back
+        1, 0, 0,     0,0,       0,0,-1,
+        0, 0, 0,    1,0,        0,0,-1,
+        0, 1, 0,     1,1,       0,0,-1,
 
-        1, 0, 1,     0,0,//Rigth
-        1, 0, 0,     1,0,
-        1, 1, 0,      1,1,
-        1, 1, 1,      0,1,
+        1, 0, 1,     0,0,       1,0,0,//Rigth
+        1, 0, 0,     1,0,       1,0,0,
+        1, 1, 0,      1,1,      1,0,0,
+        1, 1, 1,      0,1,      1,0,0,
 
-        0, 0, 1,     1,0,//left
-        0, 0, 0,     0,0,
-        0, 1, 0,      0,1,
-        0, 1, 1,      1,1,
+        0, 0, 1,     1,0,       -1,0,0,//left
+        0, 0, 0,     0,0,       -1,0,0,
+        0, 1, 0,      0,1,      -1,0,0,
+        0, 1, 1,      1,1,      -1,0,0,
 
-        1, 1, 1,      1,0,//top
-        1, 1, 0,     1,1,
-        0, 1, 1,     0,0,
-        0, 1, 0,    0,1,
+        1, 1, 1,      1,0,      0,1,0,//top
+        1, 1, 0,     1,1,       0,1,0,
+        0, 1, 1,     0,0,       0,1,0,
+        0, 1, 0,    0,1,        0,1,0,
 
-        1, 0, 1,      1,1,//bottom
-        1, 0, 0,     1,0,
-        0, 0, 1,     0,1,
-        0, 0, 0,    0,0,
+        1, 0, 1,      1,1,      0,-1,0,//bottom
+        1, 0, 0,     1,0,       0,-1,0,
+        0, 0, 1,     0,1,       0,-1,0,
+        0, 0, 0,    0,0,        0,-1,0,
 };
 
 static constexpr GLuint indices[] = {
@@ -49,16 +49,17 @@ static constexpr GLuint indices[] = {
 };
 
 constexpr GLuint numVertices = 24;
+constexpr GLuint _dataPerRow = 8;
 
 GLuint Cube::createVertexData(GLuint* VBO, GLuint* EBO, const vec3 center, const float radius) {
     const auto x = vec2(center.x - radius, center.x + radius);
     const auto y = vec2(center.y - radius, center.y + radius);
     const auto z = vec2(center.z - radius, center.z + radius);
 
-    float vertices[numVertices * 5];
+    float vertices[numVertices * _dataPerRow];
 
     for (int i = 0; i < numVertices; i++) {
-        int offset = i*5;
+        int offset = i*_dataPerRow;
         vertices[offset] = x[_vertexMap[offset]];
         offset++;
         vertices[offset] = y[_vertexMap[offset]];
@@ -68,6 +69,13 @@ GLuint Cube::createVertexData(GLuint* VBO, GLuint* EBO, const vec3 center, const
         vertices[offset] = _vertexMap[offset];
         offset++;
         vertices[offset] = _vertexMap[offset];
+        offset++;
+        vertices[offset] = _vertexMap[offset];
+        offset++;
+        vertices[offset] = _vertexMap[offset];
+        offset++;
+        vertices[offset] = _vertexMap[offset];
+
     }
 
     GLuint VAO;
@@ -83,11 +91,14 @@ GLuint Cube::createVertexData(GLuint* VBO, GLuint* EBO, const vec3 center, const
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, _dataPerRow * sizeof(float), nullptr);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, _dataPerRow * sizeof(float), (void *) (3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, _dataPerRow * sizeof(float), (void *) (5 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
