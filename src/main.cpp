@@ -81,15 +81,15 @@ void handleInput(GLFWwindow* window,const float dt) {
     auto cameraMovement = glm::vec3(0);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cameraMovement += camera.getFPSFront();
+        cameraMovement += camera.getFront();
     } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        cameraMovement -= camera.getFPSFront();
+        cameraMovement -= camera.getFront();
     }
 
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        cameraMovement += camera.getFPSRight();
+        cameraMovement += camera.getRight();
     } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        cameraMovement -= camera.getFPSRight();
+        cameraMovement -= camera.getRight();
     }
 
     camera.pos -= cameraMovement * camera.speed * dt;
