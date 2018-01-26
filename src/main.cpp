@@ -81,15 +81,15 @@ void handleInput(GLFWwindow* window,const float dt) {
     auto cameraMovement = glm::vec3(0);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cameraMovement += camera.getFPSFront();
+        cameraMovement += camera.getFront();
     } else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        cameraMovement -= camera.getFPSFront();
+        cameraMovement -= camera.getFront();
     }
 
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        cameraMovement += camera.getFPSRight();
+        cameraMovement += camera.getRight();
     } else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        cameraMovement -= camera.getFPSRight();
+        cameraMovement -= camera.getRight();
     }
 
     camera.pos -= cameraMovement * camera.speed * dt;
@@ -137,15 +137,16 @@ void render(const GLuint VAO, const Shader& shader, const Shader& shader_light) 
     shader.set("projection", projection);
     shader.set("view", view);
     shader.set("model", IDENTITY_4);
-    shader.set("objColor", glm::vec3(.8f, 0.6f, 0.2f));
     shader.set("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-    shader.set("ambientStrength", 0.1f);
     shader.set("lightPos", lightPos);
     const glm::mat3 normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
     shader.set("normalMat", normalMat);
     shader.set("viewPos", camera.pos);
-    shader.set("shininess", 64);
-    shader.set("specularStrength", 0.6f);
+
+    shader.set("material.ambient", glm::vec3(1.0f, 0.5f, 0.3f));
+    shader.set("material.diffuse", glm::vec3(1.0f, 0.5f, 0.3f));
+    shader.set("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+    shader.set("material.shininess", 32.0f);
 
 
     glBindVertexArray(VAO);
