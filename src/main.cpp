@@ -115,7 +115,7 @@ void clearScreen() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void render(const GLuint VAO, const Shader& shader, const Shader& shader_light) {
+void render(const GLuint VAO, const Shader& shader, const Shader& shader_light, const GLint textDiffuse, const GLint textSpec) {
     clearScreen();
 
     const auto projection = glm::perspective(glm::radians(camera.getFov()), (float)K_SCREEN_WIDTH/(float)K_SCREEN_HEIGHT, 0.1f, 100.0f);
@@ -138,7 +138,7 @@ void render(const GLuint VAO, const Shader& shader, const Shader& shader_light) 
     shader.set("view", view);
     shader.set("model", IDENTITY_4);
     shader.set("light.ambient", glm::vec3(0.2f, 0.15f, 0.1f));
-    shader.set("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+    shader.set("light.diffuse", glm::vec3(0.7f, 0.7f, 0.7f));
     shader.set("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
     shader.set("light.shininess", 32.0f);
     shader.set("light.position", lightPos);
@@ -146,9 +146,13 @@ void render(const GLuint VAO, const Shader& shader, const Shader& shader_light) 
     shader.set("normalMat", normalMat);
     shader.set("viewPos", camera.pos);
 
-    shader.set("material.ambient", glm::vec3(1.0f, 0.5f, 0.3f));
-    shader.set("material.diffuse", glm::vec3(1.0f, 0.5f, 0.3f));
-    shader.set("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, textDiffuse);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, textSpec);
+
+    shader.set("material.diffuse", textDiffuse);
+    shader.set("material.specular", textSpec);
     shader.set("material.shininess", 32.0f);
 
 
@@ -194,6 +198,8 @@ int main (int argc, char *argv[]) {
     Shader shader("../shader/shader.vert", "../shader/shader.frag");
     Shader shader_light("../shader/shader_light.vert", "../shader/shader_light.frag");
 
+    int textDiffuse = createTexture("../texture/stone_diffuse.jpg");
+    int textSpec = createTexture("../texture/stone_specular.jpg");
     initConfiguration();
 
     double lastFrameTime = 0;
@@ -206,7 +212,7 @@ int main (int argc, char *argv[]) {
             // Handle Input
             handleInput(window, dt);
             //Render Here
-            render(VAO, shader, shader_light);
+            render(VAO, shader, shader_light, textDiffuse, textSpec);
             //Swap front and back buffers
             glfwSwapBuffers(window);
             // Poll for and process events

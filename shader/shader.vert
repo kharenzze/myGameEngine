@@ -10,9 +10,11 @@ uniform mat3 normalMat;
 
 out vec3 normal;
 out vec3 fragPos;
+out vec2 textCord;
 
 void main() {
     normal = normalMat * aNormal;
     fragPos = vec3(model * vec4(aPos, 1.0f));
     gl_Position =  projection * view * model * vec4(aPos, 1.0);
+    textCord = aTextCord;
 }
