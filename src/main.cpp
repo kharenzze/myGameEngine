@@ -137,8 +137,11 @@ void render(const GLuint VAO, const Shader& shader, const Shader& shader_light) 
     shader.set("projection", projection);
     shader.set("view", view);
     shader.set("model", IDENTITY_4);
-    shader.set("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-    shader.set("lightPos", lightPos);
+    shader.set("light.ambient", glm::vec3(0.2f, 0.15f, 0.1f));
+    shader.set("light.diffuse", glm::vec3(0.5f, 0.5f, 0.5f));
+    shader.set("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    shader.set("light.shininess", 32.0f);
+    shader.set("light.position", lightPos);
     const glm::mat3 normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
     shader.set("normalMat", normalMat);
     shader.set("viewPos", camera.pos);
