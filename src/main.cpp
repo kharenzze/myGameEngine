@@ -143,6 +143,10 @@ void render(const GLuint VAO, const Shader& shader, const Shader& shader_light) 
     shader.set("lightPos", lightPos);
     const glm::mat3 normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
     shader.set("normalMat", normalMat);
+    shader.set("viewPos", camera.pos);
+    shader.set("shininess", 64);
+    shader.set("specularStrength", 0.6f);
+
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
