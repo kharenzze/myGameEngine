@@ -29,22 +29,12 @@ constexpr double maxFramePeriodDouble = 1 / maxFPSDouble;
 constexpr GLuint K_SCREEN_WIDTH = 800;
 constexpr GLuint K_SCREEN_HEIGHT = 800;
 
-Camera camera(2.0f, glm::vec3(0,0,-3), 45.0f);
+Camera camera(2.0f, glm::vec3(-1,2,3), 45.0f);
 Mouse mouse;
 bool firstMouse = true;
 
-const glm::vec3 cubePositions[] = {
-    glm::vec3(1.0f, 1.0f, 1.0f),
-    glm::vec3(-1.0f, -1.5f, 1.0f),
-    glm::vec3(2.0f, 1.0f, 2.0f),
-    glm::vec3(1.0f, 1.5f, -3.0f),
-    glm::vec3(-1.0f, 3.0f, 1.0f),
-    glm::vec3(-1.5f, -1.0f,-2.0f),
-    glm::vec3(-2.0f, -2.0f, 1.0f),
-    glm::vec3(1.0f, -1.0f, 1.0f),
-    glm::vec3(-1.0f, -1.0f, 0.0f),
-    glm::vec3(-0.5f, 3.0f, -1.0f),
-};
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
 
 void initConfiguration() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -121,36 +111,37 @@ void onMouse(GLFWwindow* window, double xPos, double yPos) {
 }
 
 void clearScreen() {
-    glClearColor(.2f, .2f, .7f, 1.0f);
+    glClearColor(.0f, .0f, .0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void render(const GLuint VAO, const Shader& shader, const GLuint text) {
+void render(const GLuint VAO, const Shader& shader, const Shader& shader_light) {
     clearScreen();
-    shader.use();
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, text);
-
-
+    const auto projection = glm::perspective(glm::radians(camera.getFov()), (float)K_SCREEN_WIDTH/(float)K_SCREEN_HEIGHT, 0.1f, 100.0f);
     const auto view = camera.getViewMatrix();
+    shader_light.use();
 
-    auto projection = glm::perspective(glm::radians(camera.getFov()), (float)K_SCREEN_WIDTH/(float)K_SCREEN_HEIGHT, 0.1f, 100.0f);
+    shader_light.set("projection", projection);
+    shader_light.set("view", view);
 
-    shader.set("view", view);
-    shader.set("projection", projection);
+    auto model = glm::translate(IDENTITY_4, lightPos);
+    model = glm::scale(model, glm::vec3(0.3f));
+    shader_light.set("model", model);
 
     glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 
+    shader.use();
 
-    for (GLuint i = 0; i < 10; i++) {
-        auto angle = glm::radians(10.0f + 20.0f * i);
-        auto model = glm::translate(IDENTITY_4, cubePositions[i]);
-        model = glm::rotate(model, _glfwGetTimeFloat() * angle, glm::vec3(1.0f, 0.5f, 0));
-        shader.set("model", model);
-        glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
-    }
+    shader.set("projection", projection);
+    shader.set("view", view);
+    shader.set("model", IDENTITY_4);
+    shader.set("objColor", glm::vec3(.8f, 0.6f, 0.2f));
+    shader.set("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
 
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
 }
 
 int main (int argc, char *argv[]) {
@@ -187,14 +178,11 @@ int main (int argc, char *argv[]) {
     GLuint VBO, EBO;
     GLuint VAO = Cube::createVertexData(&VBO, &EBO, ZERO3, 0.5f);
 
-    Shader shader("../shader/shader.vert", "../shader/shader.frag");
 
-    const GLuint text = createTexture("../texture/perro_texto.jpg");
+    Shader shader("../shader/shader.vert", "../shader/shader.frag");
+    Shader shader_light("../shader/shader_light.vert", "../shader/shader_light.frag");
 
     initConfiguration();
-
-    shader.use();
-    shader.set("texture1", 0);
 
     double lastFrameTime = 0;
 
@@ -206,7 +194,7 @@ int main (int argc, char *argv[]) {
             // Handle Input
             handleInput(window, dt);
             //Render Here
-            render(VAO, shader, text);
+            render(VAO, shader, shader_light);
             //Swap front and back buffers
             glfwSwapBuffers(window);
             // Poll for and process events
@@ -216,8 +204,6 @@ int main (int argc, char *argv[]) {
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
     glDeleteVertexArrays(1, &EBO);
-
-    glDeleteTextures(1, &text);
 
     glfwTerminate();
     return 0;
