@@ -12,7 +12,7 @@ using glm::radians;
 
 constexpr float MAX_PITCH = 89.0f;
 constexpr float MIN_PITCH = -89.0f;
-const vec3 DEFAULT_ROTATION = vec3(0, -90, 0);
+const vec3 DEFAULT_ROTATION = vec3(20, 90, 0);
 
 Camera::Camera() {
     this->speed = 2.0f;

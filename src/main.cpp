@@ -139,6 +139,10 @@ void render(const GLuint VAO, const Shader& shader, const Shader& shader_light) 
     shader.set("model", IDENTITY_4);
     shader.set("objColor", glm::vec3(.8f, 0.6f, 0.2f));
     shader.set("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+    shader.set("ambientStrength", 0.1f);
+    shader.set("lightPos", lightPos);
+    const glm::mat3 normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
+    shader.set("normalMat", normalMat);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
