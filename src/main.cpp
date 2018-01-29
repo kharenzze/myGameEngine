@@ -5,6 +5,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -14,6 +15,7 @@
 #include "Camera.h"
 #include "Mouse.h"
 #include "Cube.h"
+#include "GameObject.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -34,6 +36,7 @@ Mouse mouse;
 bool firstMouse = true;
 
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+GameObject cube = GameObject();
 
 
 void initConfiguration() {
@@ -134,9 +137,10 @@ void render(const GLuint VAO, const Shader& shader, const Shader& shader_light, 
 
     shader.use();
 
+    cube.transform.addRotation(glm::vec3(0.0f, 0.01f, 0.0f));
     shader.set("projection", projection);
     shader.set("view", view);
-    shader.set("model", IDENTITY_4);
+    shader.set("model", cube.transform.getModelMatrix());
     shader.set("light.ambient", glm::vec3(0.2f, 0.15f, 0.1f));
     shader.set("light.diffuse", glm::vec3(0.7f, 0.7f, 0.7f));
     shader.set("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));

@@ -9,6 +9,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 const glm::mat4 IDENTITY_4 = glm::mat4(1.0f);
+const glm::mat3 IDENTITY_3 = glm::mat3(1.0f);
 
 const glm::vec3 FRONT = glm::vec3(0, 0, 1);
 const glm::vec3 UP = glm::vec3(0, 1, 0);
