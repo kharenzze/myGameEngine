@@ -33,6 +33,7 @@ Camera camera(2.0f, glm::vec3(-1,2,3), 45.0f);
 Mouse mouse;
 bool firstMouse = true;
 
+float radius = 2.0f;
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 
@@ -124,6 +125,9 @@ void render(const GLuint VAO, const Shader& shader, const Shader& shader_light) 
 
     shader_light.set("projection", projection);
     shader_light.set("view", view);
+
+    auto t = _glfwGetTimeFloat();
+    lightPos = glm::vec3(sinf(t), 1, cosf(t));
 
     auto model = glm::translate(IDENTITY_4, lightPos);
     model = glm::scale(model, glm::vec3(0.3f));
