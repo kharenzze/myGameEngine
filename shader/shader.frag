@@ -9,16 +9,18 @@ uniform vec3 lightColor;
 uniform float ambientStrength;
 uniform vec3 lightPos;
 
-uniform vec3 viewPos;
+uniform mat4 view;
+vec3 viewPos = vec3(0,0,0);
 uniform int shininess;
 uniform float specularStrength;
 
 
 void main(){
+    vec3 lightPosView = vec3(view * vec4(lightPos, 1.0f));
     vec3 ambient = ambientStrength * lightColor;
 
     vec3 norm = normalize(normal);
-    vec3 lightDir = normalize(lightPos - fragPos);
+    vec3 lightDir = normalize(lightPosView - fragPos);
     float diff = max(dot(norm ,lightDir), 0.0f);
     vec3 diffuse = diff * lightColor;
 
