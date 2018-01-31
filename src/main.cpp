@@ -34,7 +34,7 @@ Camera camera(2.0f, glm::vec3(-1,2,3), 45.0f);
 Mouse mouse;
 bool firstMouse = true;
 
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 lightPos(4.0f, 4.0f, 4.0f);
 
 
 void initConfiguration() {
@@ -116,7 +116,7 @@ void clearScreen() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void render(const GLuint VAO, const Shader& shader, const Shader& shader_light) {
+void render(const GLuint VAO, const Shader& shader, const Shader& shader_gouraud, const Shader& shader_flat, const Shader& shader_light) {
     clearScreen();
 
     const auto projection = glm::perspective(glm::radians(camera.getFov()), (float)K_SCREEN_WIDTH/(float)K_SCREEN_HEIGHT, 0.1f, 100.0f);
@@ -137,8 +137,9 @@ void render(const GLuint VAO, const Shader& shader, const Shader& shader_light) 
 
     shader.set("projection", projection);
     shader.set("view", view);
-    shader.set("model", IDENTITY_4);
-    shader.set("objColor", glm::vec3(.8f, 0.6f, 0.2f));
+    model = glm::translate(IDENTITY_4, glm::vec3(0,0,1));
+    shader.set("model", model);
+    shader.set("objColor", glm::vec3(.2f, 0.2f, 0.8f));
     shader.set("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
     shader.set("ambientStrength", 0.1f);
     shader.set("lightPos", lightPos);
@@ -148,8 +149,40 @@ void render(const GLuint VAO, const Shader& shader, const Shader& shader_light) 
     shader.set("shininess", 64);
     shader.set("specularStrength", 0.6f);
 
+    glDrawElements(GL_TRIANGLES, 540, GL_UNSIGNED_INT, nullptr);
 
-    glBindVertexArray(VAO);
+    shader_gouraud.use();
+
+    shader_gouraud.set("projection", projection);
+    shader_gouraud.set("view", view);
+    model = glm::translate(IDENTITY_4, glm::vec3(0,0,0));
+    shader_gouraud.set("model", model);
+    shader_gouraud.set("objColor", glm::vec3(.2f, 0.2f, 0.8f));
+    shader_gouraud.set("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+    shader_gouraud.set("ambientStrength", 0.1f);
+    shader_gouraud.set("lightPos", lightPos);
+    shader_gouraud.set("normalMat", normalMat);
+    shader_gouraud.set("viewPos", camera.pos);
+    shader_gouraud.set("shininess", 64);
+    shader_gouraud.set("specularStrength", 0.6f);
+
+    glDrawElements(GL_TRIANGLES, 540, GL_UNSIGNED_INT, nullptr);
+
+    shader_flat.use();
+
+    shader_flat.set("projection", projection);
+    shader_flat.set("view", view);
+    model = glm::translate(IDENTITY_4, glm::vec3(0,0,-1));
+    shader_flat.set("model", model);
+    shader_flat.set("objColor", glm::vec3(.2f, 0.2f, 0.8f));
+    shader_flat.set("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+    shader_flat.set("ambientStrength", 0.1f);
+    shader_flat.set("lightPos", lightPos);
+    shader_flat.set("normalMat", normalMat);
+    shader_flat.set("viewPos", camera.pos);
+    shader_flat.set("shininess", 64);
+    shader_flat.set("specularStrength", 0.6f);
+
     glDrawElements(GL_TRIANGLES, 540, GL_UNSIGNED_INT, nullptr);
 }
 
@@ -188,7 +221,9 @@ int main (int argc, char *argv[]) {
     GLuint VAO = Sphere::createVertexData(&VBO, &EBO, ZERO3, 0.5f);
 
 
-    Shader shader("../shader/gouraud.vert", "../shader/gouraud.frag");
+    Shader shader_gouraud("../shader/gouraud.vert", "../shader/gouraud.frag");
+    Shader shader("../shader/shader.vert", "../shader/shader.frag");
+    Shader shader_flat("../shader/flat.vert", "../shader/flat.frag");
     Shader shader_light("../shader/shader_light.vert", "../shader/shader_light.frag");
 
     initConfiguration();
@@ -203,7 +238,7 @@ int main (int argc, char *argv[]) {
             // Handle Input
             handleInput(window, dt);
             //Render Here
-            render(VAO, shader, shader_light);
+            render(VAO, shader, shader_gouraud, shader_flat, shader_light);
             //Swap front and back buffers
             glfwSwapBuffers(window);
             // Poll for and process events
