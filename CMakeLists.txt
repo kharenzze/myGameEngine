@@ -69,6 +69,7 @@ file(
     src/Camera.cpp
     src/Mouse.cpp
     src/Cube.cpp
+    src/Sphere.cpp
 )
 
 add_executable(myGameEngine

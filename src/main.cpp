@@ -14,6 +14,7 @@
 #include "Camera.h"
 #include "Mouse.h"
 #include "Cube.h"
+#include "Sphere.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -130,7 +131,7 @@ void render(const GLuint VAO, const Shader& shader, const Shader& shader_light) 
     shader_light.set("model", model);
 
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, 540, GL_UNSIGNED_INT, nullptr);
 
     shader.use();
 
@@ -149,7 +150,7 @@ void render(const GLuint VAO, const Shader& shader, const Shader& shader_light) 
 
 
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, 540, GL_UNSIGNED_INT, nullptr);
 }
 
 int main (int argc, char *argv[]) {
@@ -184,7 +185,7 @@ int main (int argc, char *argv[]) {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     GLuint VBO, EBO;
-    GLuint VAO = Cube::createVertexData(&VBO, &EBO, ZERO3, 0.5f);
+    GLuint VAO = Sphere::createVertexData(&VBO, &EBO, ZERO3, 0.5f);
 
 
     Shader shader("../shader/shader.vert", "../shader/shader.frag");
