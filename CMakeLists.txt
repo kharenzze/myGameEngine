@@ -71,6 +71,7 @@ file(
     src/Cube.cpp
     src/Transform.cpp
     src/GameObject.cpp
+    src/Buffer.cpp
 )
 
 add_executable(myGameEngine
