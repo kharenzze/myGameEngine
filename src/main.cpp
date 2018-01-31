@@ -188,7 +188,7 @@ int main (int argc, char *argv[]) {
     GLuint VAO = Sphere::createVertexData(&VBO, &EBO, ZERO3, 0.5f);
 
 
-    Shader shader("../shader/shader.vert", "../shader/shader.frag");
+    Shader shader("../shader/gouraud.vert", "../shader/gouraud.frag");
     Shader shader_light("../shader/shader_light.vert", "../shader/shader_light.frag");
 
     initConfiguration();
