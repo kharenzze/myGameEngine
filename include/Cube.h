@@ -9,9 +9,14 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-class Cube {
+#include "Geometry.h"
+
+class Cube : public Geometry {
 public:
-    static GLuint createVertexData(GLuint* VBO, GLuint* EBO, const glm::vec3 center, const float radius);
+    Cube();
+    void uploadToGPU() override;
+    glm::vec3 center;
+    float radius;
 };
 
 

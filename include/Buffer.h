@@ -9,10 +9,13 @@
 class Buffer {
 public:
     Buffer();
+    ~Buffer();
     GLuint getVAO() const;
-    void setVerticesAndIndices(float* vertices, GLuint nVertices, float* indices, GLuint nIndices);
+    void setVerticesAndIndices(const float* vertices,const GLuint nVertices,const GLuint* indices,const GLuint nIndices);
+    GLuint getDataPerRow() const;
+    GLuint getNElements() const;
 private:
-    GLuint VAO, VBO, EBO;
+    GLuint VAO, VBO, EBO, nElements;
 };
 
 

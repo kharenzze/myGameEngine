@@ -36,7 +36,7 @@ Mouse mouse;
 bool firstMouse = true;
 
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
-GameObject cube = GameObject();
+GameObject cubeObject = GameObject();
 
 
 void initConfiguration() {
@@ -118,7 +118,7 @@ void clearScreen() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void render(const GLuint VAO, const Shader& shader, const Shader& shader_light, const GLint textDiffuse, const GLint textSpec) {
+void render(const Cube& cube, const Shader& shader, const Shader& shader_light, const GLint textDiffuse, const GLint textSpec) {
     clearScreen();
 
     const auto projection = glm::perspective(glm::radians(camera.getFov()), (float)K_SCREEN_WIDTH/(float)K_SCREEN_HEIGHT, 0.1f, 100.0f);
@@ -132,15 +132,14 @@ void render(const GLuint VAO, const Shader& shader, const Shader& shader_light, 
     model = glm::scale(model, glm::vec3(0.3f));
     shader_light.set("model", model);
 
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+    cube.render();
 
     shader.use();
 
-    cube.transform.addRotation(glm::vec3(0.0f, 0.01f, 0.0f));
+    cubeObject.transform.addRotation(glm::vec3(0.0f, 0.01f, 0.0f));
     shader.set("projection", projection);
     shader.set("view", view);
-    shader.set("model", cube.transform.getModelMatrix());
+    shader.set("model", cubeObject.transform.getModelMatrix());
     shader.set("light.ambient", glm::vec3(0.2f, 0.15f, 0.1f));
     shader.set("light.diffuse", glm::vec3(0.7f, 0.7f, 0.7f));
     shader.set("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
@@ -159,9 +158,7 @@ void render(const GLuint VAO, const Shader& shader, const Shader& shader_light, 
     shader.set("material.specular", textSpec);
     shader.set("material.shininess", 32.0f);
 
-
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
+    cube.render();
 }
 
 int main (int argc, char *argv[]) {
@@ -195,9 +192,8 @@ int main (int argc, char *argv[]) {
     glfwSetScrollCallback(window, onScroll);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    GLuint VBO, EBO;
-    GLuint VAO = Cube::createVertexData(&VBO, &EBO, ZERO3, 0.5f);
-
+    auto cube = Cube();
+    cube.uploadToGPU();
 
     Shader shader("../shader/shader.vert", "../shader/shader.frag");
     Shader shader_light("../shader/shader_light.vert", "../shader/shader_light.frag");
@@ -216,16 +212,13 @@ int main (int argc, char *argv[]) {
             // Handle Input
             handleInput(window, dt);
             //Render Here
-            render(VAO, shader, shader_light, textDiffuse, textSpec);
+            render(cube, shader, shader_light, textDiffuse, textSpec);
             //Swap front and back buffers
             glfwSwapBuffers(window);
             // Poll for and process events
             glfwPollEvents();
         }
     }
-    glDeleteBuffers(1, &VBO);
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteVertexArrays(1, &EBO);
 
     glfwTerminate();
     return 0;

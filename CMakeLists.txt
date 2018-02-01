@@ -72,6 +72,7 @@ file(
     src/Transform.cpp
     src/GameObject.cpp
     src/Buffer.cpp
+    src/Geometry.cpp
 )
 
 add_executable(myGameEngine

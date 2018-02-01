@@ -7,6 +7,11 @@
 using glm::vec3;
 using glm::vec2;
 
+Cube::Cube() {
+    center = vec3(0);
+    radius = 0.5f;
+}
+
 static constexpr int _vertexMap[] = {
         1, 1, 1,      1,1,      0,0,1,//front
         1, 0, 1,     1,0,       0,0,1,
@@ -48,15 +53,17 @@ static constexpr GLuint indices[] = {
         20,22,21,  21,22,23,
 };
 
-constexpr GLuint numVertices = 24;
-constexpr GLuint _dataPerRow = 8;
+static constexpr GLuint nIndices = 36;
 
-GLuint Cube::createVertexData(GLuint* VBO, GLuint* EBO, const vec3 center, const float radius) {
+void Cube::uploadToGPU() {
     const auto x = vec2(center.x - radius, center.x + radius);
     const auto y = vec2(center.y - radius, center.y + radius);
     const auto z = vec2(center.z - radius, center.z + radius);
 
-    float vertices[numVertices * _dataPerRow];
+    constexpr GLuint numVertices = 24;
+    const auto _dataPerRow = _buffer.getDataPerRow();
+    const auto nVerticesData = numVertices * _dataPerRow;
+    float vertices[nVerticesData];
 
     for (int i = 0; i < numVertices; i++) {
         int offset = i*_dataPerRow;
@@ -77,33 +84,5 @@ GLuint Cube::createVertexData(GLuint* VBO, GLuint* EBO, const vec3 center, const
         vertices[offset] = _vertexMap[offset];
 
     }
-
-    GLuint VAO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, VBO);
-    glGenBuffers(1, EBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, _dataPerRow * sizeof(float), nullptr);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, _dataPerRow * sizeof(float), (void *) (3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, _dataPerRow * sizeof(float), (void *) (5 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    return VAO;
+    _buffer.setVerticesAndIndices(vertices, nVerticesData, indices, nIndices);
 }
