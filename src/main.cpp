@@ -17,9 +17,7 @@
 #include "Cube.h"
 #include "Sphere.h"
 #include "GameObject.h"
-
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "Texture.h"
 
 #include <iostream>
 
@@ -46,29 +44,6 @@ void initConfiguration() {
     glCullFace(GL_BACK);
     glDepthFunc(GL_LESS);
     glEnable(GL_DEPTH_TEST);
-}
-
-GLuint createTexture(const char* path, const int verticalFlip = 0) {
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    int width, height, nChannels;
-    stbi_set_flip_vertically_on_load(!verticalFlip);
-    unsigned char* data = stbi_load(path, &width, &height, &nChannels, 0);
-    if (data) {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-    } else {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    return texture;
 }
 
 void onChangeFramebufferSize(GLFWwindow* window, const int32_t width, const int32_t height) {
@@ -202,8 +177,8 @@ int main (int argc, char *argv[]) {
     Shader shader("../shader/shader.vert", "../shader/shader.frag");
     Shader shader_light("../shader/shader_light.vert", "../shader/shader_light.frag");
 
-    int textDiffuse = createTexture("../texture/stone_diffuse.jpg");
-    int textSpec = createTexture("../texture/stone_specular.jpg");
+    auto textDiffuse = Texture("../texture/stone_diffuse.jpg");
+    auto textSpec = Texture("../texture/stone_specular.jpg");
     initConfiguration();
 
     double lastFrameTime = 0;
@@ -216,7 +191,7 @@ int main (int argc, char *argv[]) {
             // Handle Input
             handleInput(window, dt);
             //Render Here
-            render(cube, sphere, shader, shader_light, textDiffuse, textSpec);
+            render(cube, sphere, shader, shader_light, textDiffuse.getId(), textSpec.getId());
             //Swap front and back buffers
             glfwSwapBuffers(window);
             // Poll for and process events
