@@ -73,6 +73,7 @@ file(
     src/GameObject.cpp
     src/Buffer.cpp
     src/Geometry.cpp
+    src/Sphere.cpp
 )
 
 add_executable(myGameEngine

@@ -15,6 +15,7 @@
 #include "Camera.h"
 #include "Mouse.h"
 #include "Cube.h"
+#include "Sphere.h"
 #include "GameObject.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -118,7 +119,7 @@ void clearScreen() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void render(const Cube& cube, const Shader& shader, const Shader& shader_light, const GLint textDiffuse, const GLint textSpec) {
+void render(const Cube& cube, const Sphere& sphere, const Shader& shader, const Shader& shader_light, const GLint textDiffuse, const GLint textSpec) {
     clearScreen();
 
     const auto projection = glm::perspective(glm::radians(camera.getFov()), (float)K_SCREEN_WIDTH/(float)K_SCREEN_HEIGHT, 0.1f, 100.0f);
@@ -132,7 +133,7 @@ void render(const Cube& cube, const Shader& shader, const Shader& shader_light, 
     model = glm::scale(model, glm::vec3(0.3f));
     shader_light.set("model", model);
 
-    cube.render();
+    sphere.render();
 
     shader.use();
 
@@ -195,6 +196,9 @@ int main (int argc, char *argv[]) {
     auto cube = Cube();
     cube.uploadToGPU();
 
+    auto sphere = Sphere();
+    sphere.uploadToGPU();
+
     Shader shader("../shader/shader.vert", "../shader/shader.frag");
     Shader shader_light("../shader/shader_light.vert", "../shader/shader_light.frag");
 
@@ -212,7 +216,7 @@ int main (int argc, char *argv[]) {
             // Handle Input
             handleInput(window, dt);
             //Render Here
-            render(cube, shader, shader_light, textDiffuse, textSpec);
+            render(cube, sphere, shader, shader_light, textDiffuse, textSpec);
             //Swap front and back buffers
             glfwSwapBuffers(window);
             // Poll for and process events

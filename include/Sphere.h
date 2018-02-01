@@ -9,9 +9,15 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-class Sphere {
+#include "Geometry.h"
+
+class Sphere : public Geometry {
 public:
-    static GLuint createVertexData(GLuint* VBO, GLuint* EBO, const glm::vec3 center, const float radius);
+    Sphere();
+    void uploadToGPU() override;
+    glm::vec3 center;
+    float radius;
+    GLuint slices, stacks;
 };
 
 

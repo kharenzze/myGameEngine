@@ -7,6 +7,13 @@
 using glm::vec3;
 using glm::vec2;
 
+Sphere::Sphere() {
+    center = vec3(0);
+    radius = 0.5f;
+    slices = 10;
+    stacks = 10;
+}
+
 void _generateVerts(float * verts, float * norms, float * tex, uint32_t * el, const uint32_t slices, const uint32_t stacks, const float radius) {
     float theta, phi;       // Generate positions and normals
     float thetaFac = (float)((2.0 * M_PI) / slices);
@@ -66,13 +73,10 @@ void _generateVerts(float * verts, float * norms, float * tex, uint32_t * el, co
     }
 }
 
-GLuint Sphere::createVertexData(GLuint* VBO, GLuint* EBO, const vec3 center = vec3(0,0,0), const float radius = 1) {
-    constexpr uint32_t slices = 10;
-    constexpr uint32_t stacks = 10;
-
-    constexpr uint32_t nVerts = (slices + 1) * (stacks + 1);
-    constexpr uint32_t elements = slices * 2 * (stacks - 1) * 3;
-    constexpr int _dataPerRow = 8;
+void Sphere::uploadToGPU() {
+    const uint32_t nVerts = (slices + 1) * (stacks + 1);
+    const uint32_t elements = slices * 2 * (stacks - 1) * 3;
+    const int _dataPerRow = _buffer.getDataPerRow();
 
     float v[3 * nVerts];        // Verts
     float n[3 * nVerts];        // Normals
@@ -81,7 +85,8 @@ GLuint Sphere::createVertexData(GLuint* VBO, GLuint* EBO, const vec3 center = ve
 
     _generateVerts(v, n, tex, indices, slices, stacks, radius);
 
-    float vertices[_dataPerRow * nVerts];
+    const GLuint nVerticesData = _dataPerRow * nVerts;
+    float vertices[nVerticesData];
 
     for (int i = nVerts; i--;) {
         int rowIndex = i * _dataPerRow;
@@ -94,33 +99,5 @@ GLuint Sphere::createVertexData(GLuint* VBO, GLuint* EBO, const vec3 center = ve
         vertices[rowIndex+6] = n[i*3+1];
         vertices[rowIndex+7] = n[i*3+2];
     }
-
-    GLuint VAO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, VBO);
-    glGenBuffers(1, EBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, *EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, _dataPerRow * sizeof(float), nullptr);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, _dataPerRow * sizeof(float), (void *) (3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, _dataPerRow * sizeof(float), (void *) (5 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-    return VAO;
+    _buffer.setVerticesAndIndices(vertices, nVerticesData, indices, elements);
 }
