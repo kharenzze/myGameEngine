@@ -30,13 +30,14 @@ constexpr double maxFramePeriodDouble = 1 / maxFPSDouble;
 constexpr GLuint K_SCREEN_WIDTH = 800;
 constexpr GLuint K_SCREEN_HEIGHT = 800;
 
+constexpr float K_SCREEN_RATIO = K_SCREEN_WIDTH / K_SCREEN_HEIGHT;
+
 Camera camera(2.0f, glm::vec3(-1,2,3), 45.0f);
 Mouse mouse;
 bool firstMouse = true;
 
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 GameObject cubeObject = GameObject();
-
+GameObject light = GameObject();
 
 void initConfiguration() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -94,45 +95,36 @@ void clearScreen() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void render(const Cube& cube, const Sphere& sphere, const Shader& shader, const Shader& shader_light, const GLint textDiffuse, const GLint textSpec) {
+void render(const Cube& cube, const Sphere& sphere) {
     clearScreen();
 
-    const auto projection = glm::perspective(glm::radians(camera.getFov()), (float)K_SCREEN_WIDTH/(float)K_SCREEN_HEIGHT, 0.1f, 100.0f);
-    const auto view = camera.getViewMatrix();
-    shader_light.use();
-
-    shader_light.set("projection", projection);
-    shader_light.set("view", view);
-
-    auto model = glm::translate(IDENTITY_4, lightPos);
-    model = glm::scale(model, glm::vec3(0.3f));
-    shader_light.set("model", model);
-
+    light.material->use(light.transform, camera, nullptr);
     sphere.render();
 
-    shader.use();
 
     cubeObject.transform.addRotation(glm::vec3(0.0f, 0.01f, 0.0f));
-    shader.set("projection", projection);
-    shader.set("view", view);
-    shader.set("model", cubeObject.transform.getModelMatrix());
-    shader.set("light.ambient", glm::vec3(0.2f, 0.15f, 0.1f));
-    shader.set("light.diffuse", glm::vec3(0.7f, 0.7f, 0.7f));
-    shader.set("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-    shader.set("light.shininess", 32.0f);
-    shader.set("light.position", lightPos);
-    const glm::mat3 normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
-    shader.set("normalMat", normalMat);
-    shader.set("viewPos", camera.pos);
-
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, textDiffuse);
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, textSpec);
-
-    shader.set("material.diffuse", textDiffuse);
-    shader.set("material.specular", textSpec);
-    shader.set("material.shininess", 32.0f);
+//    shader.use();
+//    shader.set("projection", projection);
+//    shader.set("view", view);
+//    shader.set("model", cubeObject.transform.getModelMatrix());
+//    shader.set("light.ambient", glm::vec3(0.2f, 0.15f, 0.1f));
+//    shader.set("light.diffuse", glm::vec3(0.7f, 0.7f, 0.7f));
+//    shader.set("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+//    shader.set("light.shininess", 32.0f);
+//    shader.set("light.position", lightPos);
+//    const glm::mat3 normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
+//    shader.set("normalMat", normalMat);
+//    shader.set("viewPos", camera.pos);
+//
+//    glActiveTexture(GL_TEXTURE1);
+//    glBindTexture(GL_TEXTURE_2D, textDiffuse);
+//    glActiveTexture(GL_TEXTURE2);
+//    glBindTexture(GL_TEXTURE_2D, textSpec);
+//
+//    shader.set("material.diffuse", textDiffuse);
+//    shader.set("material.specular", textSpec);
+//    shader.set("material.shininess", 32.0f);
+    cubeObject.material->use(cubeObject.transform, camera, &light.transform);
 
     cube.render();
 }
@@ -179,6 +171,19 @@ int main (int argc, char *argv[]) {
 
     auto textDiffuse = Texture("../texture/stone_diffuse.jpg");
     auto textSpec = Texture("../texture/stone_specular.jpg");
+
+    Material matLight(&shader_light, false, false);
+    Material matCube(&shader, true, true);
+    matCube.diffuse = &textDiffuse;
+    matCube.specular = &textSpec;
+
+    light.material = &matLight;
+    light.transform.setPosition(glm::vec3(1.2f, 1.0f, 1.0f));
+    light.transform.setScale(glm::vec3(0.3f));
+
+    cubeObject.material = &matCube;
+
+
     initConfiguration();
 
     double lastFrameTime = 0;
@@ -191,7 +196,7 @@ int main (int argc, char *argv[]) {
             // Handle Input
             handleInput(window, dt);
             //Render Here
-            render(cube, sphere, shader, shader_light, textDiffuse.getId(), textSpec.getId());
+            render(cube, sphere);
             //Swap front and back buffers
             glfwSwapBuffers(window);
             // Poll for and process events

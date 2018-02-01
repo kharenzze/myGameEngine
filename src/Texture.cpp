@@ -26,6 +26,7 @@ Texture::Texture(const char *path, const bool verticalFlip) {
         glGenerateMipmap(GL_TEXTURE_2D);
     } else {
         std::cout << "Failed to load texture" << std::endl;
+        _id = 0;
     }
 }
 
@@ -35,4 +36,9 @@ GLuint Texture::getId() const {
 
 Texture::~Texture() {
     glDeleteTextures(1, &_id);
+}
+
+void Texture::bind() const {
+    if (_id)
+        glBindTexture(GL_TEXTURE_2D, _id);
 }

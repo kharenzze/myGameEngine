@@ -18,13 +18,15 @@ Camera::Camera() {
     this->speed = 2.0f;
     this->pos = ZERO3;
     this->fov = 45.0f;
+    _screenRatio = 1;
     setRotation(DEFAULT_ROTATION);
 }
 
-Camera::Camera(const float speed, const vec3 &pos, const float fov = 45.0f) {
+Camera::Camera(const float speed, const vec3 &pos, const float fov, const float screenRatio) {
     this->speed = speed;
     this->pos = pos;
     this->fov = fov;
+    _screenRatio = screenRatio;
     setRotation(DEFAULT_ROTATION);
 }
 
@@ -32,6 +34,10 @@ glm::mat4 Camera::getViewMatrix() const {
     return glm::lookAt(pos,
                 pos - _front,
                 cameraUp);
+}
+
+glm::mat4 Camera::getPerspectiveMatrix() const {
+    return glm::perspective(glm::radians(fov), _screenRatio, 0.1f, 100.0f);
 }
 
 float Camera::getFov() const {
@@ -42,6 +48,10 @@ void Camera::setFov(float fov) {
     if (fov >= 1 && fov <= 45) {
         this->fov = fov;
     }
+}
+
+void Camera::setScreenRatio(const float ratio) {
+    _screenRatio = ratio;
 }
 
 void Camera::moveFov(float offset) {

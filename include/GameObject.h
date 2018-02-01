@@ -6,11 +6,13 @@
 #define MYGAMEENGINE_GAMEOBJECT_H
 
 #include "Transform.h"
+#include "Material.h"
 
 class GameObject {
 public:
     GameObject();
     Transform transform;
+    Material *material;
 };
 
 

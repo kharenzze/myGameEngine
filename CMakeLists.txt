@@ -75,6 +75,7 @@ file(
     src/Geometry.cpp
     src/Sphere.cpp
     src/Texture.cpp
+    src/Material.cpp
 )
 
 add_executable(myGameEngine

@@ -12,6 +12,7 @@ public:
     Texture(const char* path, const bool verticalFlip = true);
     ~Texture();
     GLuint getId() const;
+    void bind() const;
 private:
     GLuint _id;
 };
