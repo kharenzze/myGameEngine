@@ -90,13 +90,14 @@ void Transform::_adjustAxis() {
 }
 
 glm::mat4 Transform::getModelMatrix() const {
-    auto model = glm::scale(IDENTITY_4, _scale);
+    auto model = glm::translate(IDENTITY_4, _pos);
     model = glm::rotate(model, _rot.y, UP);
     auto f = glm::rotate(FRONT, _rot.y, UP);
     auto r = glm::cross(UP, _front);
     model = glm::rotate(model, _rot.x, r);
     f = glm::rotate(f, _rot.x, r);
     model = glm::rotate(model, _rot.z, f);
-    model = glm::translate(model, _pos);
+    model = glm::scale(model, _scale);
+
     return model;
 }
