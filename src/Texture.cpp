@@ -32,3 +32,7 @@ Texture::Texture(const char *path, const bool verticalFlip) {
 GLuint Texture::getId() const {
     return _id;
 }
+
+Texture::~Texture() {
+    glDeleteTextures(1, &_id);
+}

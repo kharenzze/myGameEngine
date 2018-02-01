@@ -10,6 +10,7 @@
 class Texture {
 public:
     Texture(const char* path, const bool verticalFlip = true);
+    ~Texture();
     GLuint getId() const;
 private:
     GLuint _id;
