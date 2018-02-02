@@ -6,4 +6,6 @@
 
 GameObject::GameObject() {
     transform = Transform();
+    drawable = nullptr;
+    light = nullptr;
 }
