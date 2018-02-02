@@ -161,9 +161,9 @@ int main (int argc, char *argv[]) {
     light.drawable = &lightDrawable;
     light.transform.setPosition(glm::vec3(1.2f, 1.0f, 1.0f));
     light.transform.setScale(glm::vec3(0.3f));
-    auto l = Light(glm::vec3(0.2f, 0.15f, 0.1f),
-                   glm::vec3(0.7f, 0.7f, 0.7f),
-                   glm::vec3(1.0f, 1.0f, 1.0f));
+    auto l = Light(glm::vec3(0.1f, 0.1f, 0.1f),
+                   glm::vec3(0.7f, 0.0f, 0.0f),
+                   glm::vec3(0.0f, 0.0f, 1.0f));
     light.light = &l;
 
     cubeObject.drawable = &cubeDrawable;
