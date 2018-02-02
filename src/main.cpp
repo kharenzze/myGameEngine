@@ -18,6 +18,7 @@
 #include "Sphere.h"
 #include "GameObject.h"
 #include "Texture.h"
+#include "Light.h"
 
 #include <iostream>
 
@@ -101,31 +102,8 @@ void render(const Cube& cube, const Sphere& sphere) {
     light.material->use(light.transform, camera, nullptr);
     sphere.render();
 
-
     cubeObject.transform.addRotation(glm::vec3(0.0f, 0.01f, 0.0f));
-//    shader.use();
-//    shader.set("projection", projection);
-//    shader.set("view", view);
-//    shader.set("model", cubeObject.transform.getModelMatrix());
-//    shader.set("light.ambient", glm::vec3(0.2f, 0.15f, 0.1f));
-//    shader.set("light.diffuse", glm::vec3(0.7f, 0.7f, 0.7f));
-//    shader.set("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-//    shader.set("light.shininess", 32.0f);
-//    shader.set("light.position", lightPos);
-//    const glm::mat3 normalMat = glm::inverse(glm::transpose(glm::mat3(model)));
-//    shader.set("normalMat", normalMat);
-//    shader.set("viewPos", camera.pos);
-//
-//    glActiveTexture(GL_TEXTURE1);
-//    glBindTexture(GL_TEXTURE_2D, textDiffuse);
-//    glActiveTexture(GL_TEXTURE2);
-//    glBindTexture(GL_TEXTURE_2D, textSpec);
-//
-//    shader.set("material.diffuse", textDiffuse);
-//    shader.set("material.specular", textSpec);
-//    shader.set("material.shininess", 32.0f);
-    cubeObject.material->use(cubeObject.transform, camera, &light.transform);
-
+    cubeObject.material->use(cubeObject.transform, camera, &light.transform, light.light);
     cube.render();
 }
 
@@ -180,6 +158,10 @@ int main (int argc, char *argv[]) {
     light.material = &matLight;
     light.transform.setPosition(glm::vec3(1.2f, 1.0f, 1.0f));
     light.transform.setScale(glm::vec3(0.3f));
+    auto l = Light(glm::vec3(0.2f, 0.15f, 0.1f),
+                   glm::vec3(0.7f, 0.7f, 0.7f),
+                   glm::vec3(1.0f, 1.0f, 1.0f));
+    light.light = &l;
 
     cubeObject.material = &matCube;
 

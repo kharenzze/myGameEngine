@@ -11,11 +11,12 @@
 #include "Texture.h"
 #include "Transform.h"
 #include "Camera.h"
+#include "Light.h"
 
 class Material {
 public:
     Material(Shader* shader, const bool hasMaterialProps, const bool hasLightProps);
-    void use(const Transform& self, const Camera& camera, const Transform *light = nullptr) const;
+    void use(const Transform& self, const Camera& camera, const Transform* lightPos = nullptr, const Light *light = nullptr) const;
 
     Texture *diffuse, *specular;
     Shader* shader;

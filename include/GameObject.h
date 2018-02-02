@@ -7,12 +7,14 @@
 
 #include "Transform.h"
 #include "Material.h"
+#include "Light.h"
 
 class GameObject {
 public:
     GameObject();
     Transform transform;
     Material *material;
+    Light *light;
 };
 
 

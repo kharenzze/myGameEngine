@@ -14,7 +14,7 @@ Material::Material(Shader* shader, const bool hasMaterialProps, const bool hasLi
     _hasMaterialProps = hasMaterialProps;
 }
 
-void Material::use(const Transform& self, const Camera& camera, const Transform* light) const {
+void Material::use(const Transform& self, const Camera& camera, const Transform* lightPos, const Light *light) const {
     shader->use();
     if (_hasMaterialProps) {
         if (diffuse) {
@@ -31,10 +31,10 @@ void Material::use(const Transform& self, const Camera& camera, const Transform*
     }
     if (_hasLightProps) {
         if (light) {
-            shader->set("light.ambient", glm::vec3(0.2f, 0.15f, 0.1f));
-            shader->set("light.diffuse", glm::vec3(0.7f, 0.7f, 0.7f));
-            shader->set("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-            shader->set("light.position", light->getPosition());
+            shader->set("light.ambient", light->ambient);
+            shader->set("light.diffuse", light->diffuse);
+            shader->set("light.specular", light->specular);
+            shader->set("light.position", lightPos->getPosition());
             const auto normalMat = glm::transpose(glm::inverse(glm::mat3(self.getModelMatrix())));
             shader->set("normalMat", normalMat);
         } else {
