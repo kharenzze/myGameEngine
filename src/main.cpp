@@ -19,6 +19,7 @@
 #include "GameObject.h"
 #include "Texture.h"
 #include "Light.h"
+#include "Drawable.h"
 
 #include <iostream>
 
@@ -96,15 +97,13 @@ void clearScreen() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void render(const Cube& cube, const Sphere& sphere) {
+void render() {
     clearScreen();
 
-    light.material->use(light.transform, camera, nullptr);
-    sphere.render();
+    light.drawable->draw(light.transform, camera, nullptr);
 
     cubeObject.transform.addRotation(glm::vec3(0.0f, 0.01f, 0.0f));
-    cubeObject.material->use(cubeObject.transform, camera, &light.transform, light.light);
-    cube.render();
+    cubeObject.drawable->draw(cubeObject.transform, camera, &light.transform, light.light);
 }
 
 int main (int argc, char *argv[]) {
@@ -155,7 +154,10 @@ int main (int argc, char *argv[]) {
     matCube.diffuse = &textDiffuse;
     matCube.specular = &textSpec;
 
-    light.material = &matLight;
+    auto lightDrawable = Drawable(&matLight, &sphere);
+    auto cubeDrawable = Drawable(&matCube, &cube);
+
+    light.drawable = &lightDrawable;
     light.transform.setPosition(glm::vec3(1.2f, 1.0f, 1.0f));
     light.transform.setScale(glm::vec3(0.3f));
     auto l = Light(glm::vec3(0.2f, 0.15f, 0.1f),
@@ -163,8 +165,7 @@ int main (int argc, char *argv[]) {
                    glm::vec3(1.0f, 1.0f, 1.0f));
     light.light = &l;
 
-    cubeObject.material = &matCube;
-
+    cubeObject.drawable = &cubeDrawable;
 
     initConfiguration();
 
@@ -178,7 +179,7 @@ int main (int argc, char *argv[]) {
             // Handle Input
             handleInput(window, dt);
             //Render Here
-            render(cube, sphere);
+            render();
             //Swap front and back buffers
             glfwSwapBuffers(window);
             // Poll for and process events

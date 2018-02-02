@@ -77,6 +77,7 @@ file(
     src/Texture.cpp
     src/Material.cpp
     src/Light.cpp
+    src/Drawable.cpp
 )
 
 add_executable(myGameEngine
