@@ -18,8 +18,9 @@ public:
     Material(Shader* shader, const bool hasMaterialProps, const bool hasLightProps);
     void use(const Transform& self, const Camera& camera, const Transform* lightPos = nullptr, const Light *light = nullptr) const;
 
-    Texture *diffuse, *specular;
+    Texture *diffuseTexture, *specularTexture;
     Shader* shader;
+    glm::vec3 ambient, diffuse, specular;
     float shininess;
 private:
     bool _hasMaterialProps, _hasLightProps;

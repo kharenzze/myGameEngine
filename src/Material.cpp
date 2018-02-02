@@ -4,28 +4,37 @@
 
 #include "Material.h"
 #include <iostream>
+#include "Utils.h"
 
 Material::Material(Shader* shader, const bool hasMaterialProps, const bool hasLightProps) {
     this->shader = shader;
-    diffuse = nullptr;
-    specular = nullptr;
+    diffuseTexture = nullptr;
+    specularTexture = nullptr;
     shininess = 32;
     _hasLightProps = hasLightProps;
     _hasMaterialProps = hasMaterialProps;
+    ambient = ZERO3;
+    diffuse = ZERO3;
+    specular = ZERO3;
 }
 
 void Material::use(const Transform& self, const Camera& camera, const Transform* lightPos, const Light *light) const {
     shader->use();
     if (_hasMaterialProps) {
-        if (diffuse) {
+        if (diffuseTexture) {
             glActiveTexture(GL_TEXTURE1);
-            diffuse->bind();
-            shader->set("material.diffuse", (int)diffuse->getId());
+            diffuseTexture->bind();
+            shader->set("material.diffuse", (int)diffuseTexture->getId());
+        } else {
+            shader->set("material.diffuse", diffuse);
+            shader->set("material.ambient", ambient);
         }
-        if (specular) {
+        if (specularTexture) {
             glActiveTexture(GL_TEXTURE2);
-            specular->bind();
-            shader->set("material.specular", (int)specular->getId());
+            specularTexture->bind();
+            shader->set("material.specular", (int)specularTexture->getId());
+        } else {
+            shader->set("material.specular", specular);
         }
         shader->set("material.shininess", shininess);
     }

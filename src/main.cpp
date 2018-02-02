@@ -145,14 +145,15 @@ int main (int argc, char *argv[]) {
 
     Shader shader("../shader/shader.vert", "../shader/shader.frag");
     Shader shader_light("../shader/shader_light.vert", "../shader/shader_light.frag");
+    Shader shader_flat("../shader/flat.vert", "../shader/flat.frag");
 
     auto textDiffuse = Texture("../texture/stone_diffuse.jpg");
     auto textSpec = Texture("../texture/stone_specular.jpg");
 
     Material matLight(&shader_light, false, false);
     Material matCube(&shader, true, true);
-    matCube.diffuse = &textDiffuse;
-    matCube.specular = &textSpec;
+    matCube.diffuseTexture = &textDiffuse;
+    matCube.specularTexture = &textSpec;
 
     auto lightDrawable = Drawable(&matLight, &sphere);
     auto cubeDrawable = Drawable(&matCube, &cube);
