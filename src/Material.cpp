@@ -10,6 +10,7 @@ Material::Material(Shader* shader, const bool hasMaterialProps, const bool hasLi
     this->shader = shader;
     diffuseTexture = nullptr;
     specularTexture = nullptr;
+    emisiveTexture = nullptr;
     shininess = 32;
     _hasLightProps = hasLightProps;
     _hasMaterialProps = hasMaterialProps;
@@ -21,6 +22,11 @@ Material::Material(Shader* shader, const bool hasMaterialProps, const bool hasLi
 void Material::use(const Transform& self, const Camera& camera, const Transform* lightPos, const Light *light) const {
     shader->use();
     if (_hasMaterialProps) {
+        if (emisiveTexture) {
+            glActiveTexture(GL_TEXTURE3);
+            emisiveTexture->bind();
+            shader->set("material.emissive", (int)emisiveTexture->getId());
+        }
         if (diffuseTexture) {
             glActiveTexture(GL_TEXTURE1);
             diffuseTexture->bind();

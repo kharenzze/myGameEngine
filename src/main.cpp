@@ -149,11 +149,13 @@ int main (int argc, char *argv[]) {
 
     auto textDiffuse = Texture("../texture/stone_diffuse.jpg");
     auto textSpec = Texture("../texture/stone_specular.jpg");
+    auto textEmi = Texture("../texture/emissive.jpg");
 
     Material matLight(&shader_light, false, false);
     Material matCube(&shader, true, true);
     matCube.diffuseTexture = &textDiffuse;
     matCube.specularTexture = &textSpec;
+    matCube.emisiveTexture= &textEmi;
 
     auto lightDrawable = Drawable(&matLight, &sphere);
     auto cubeDrawable = Drawable(&matCube, &cube);

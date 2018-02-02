@@ -8,6 +8,7 @@ in vec2 textCord;
 struct Material {
     sampler2D diffuse;
     sampler2D specular;
+    sampler2D emisive;
     float shininess;
 };
 
@@ -23,7 +24,7 @@ uniform Material material;
 uniform vec3 viewPos;
 
 void main(){
-    vec3 ambient = light.ambient * vec3(texture(material.diffuse, textCord));
+    vec3 ambient = light.ambient * vec3(texture(material.diffuse, textCord)) + vec3(texture(material.emisive, textCord));
 
     vec3 norm = normalize(normal);
     vec3 lightDir = normalize(light.position - fragPos);
