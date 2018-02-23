@@ -78,6 +78,9 @@ file(
     src/Material.cpp
     src/Light.cpp
     src/Drawable.cpp
+    src/Collider.cpp
+    src/BoxCollider.cpp
+    src/SphereCollider.cpp
 )
 
 add_executable(myGameEngine
