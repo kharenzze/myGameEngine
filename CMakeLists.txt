@@ -81,6 +81,7 @@ file(
     src/Collider.cpp
     src/BoxCollider.cpp
     src/SphereCollider.cpp
+    src/Ball.cpp
 )
 
 add_executable(myGameEngine

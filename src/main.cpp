@@ -20,6 +20,9 @@
 #include "Texture.h"
 #include "Light.h"
 #include "Drawable.h"
+#include "Ball.h"
+#include "BoxCollider.h"
+#include "SphereCollider.h"
 
 #include <iostream>
 
@@ -34,12 +37,16 @@ constexpr GLuint K_SCREEN_HEIGHT = 800;
 
 constexpr float K_SCREEN_RATIO = K_SCREEN_WIDTH / K_SCREEN_HEIGHT;
 
-Camera camera(2.0f, glm::vec3(-1,2,3), 45.0f);
+constexpr int N_WALLS = 24;
+
+Camera camera(2.0f, glm::vec3(0,5,12), 45.0f);
 Mouse mouse;
 bool firstMouse = true;
 
 GameObject cubeObject = GameObject();
 GameObject light = GameObject();
+GameObject walls[24];
+Ball ball = Ball();
 
 void initConfiguration() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -97,13 +104,21 @@ void clearScreen() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void render() {
+void render(float dt) {
     clearScreen();
 
     light.drawable->draw(light.transform, camera, nullptr);
 
-    cubeObject.transform.addRotation(glm::vec3(0.0f, 0.01f, 0.0f));
-    cubeObject.drawable->draw(cubeObject.transform, camera, &light.transform, light.light);
+    for (int i = 0; i < N_WALLS; i++) {
+        walls[i].drawable->draw(walls[i].transform, camera, &light.transform, light.light);
+        if (ball.collider->checkCollision(*walls[i].collider)) {
+            ball.onCollision(walls[i].collider);
+        }
+    }
+
+    ball.move(dt);
+
+    ball.drawable->draw(ball.transform, camera, &light.transform, light.light);
 }
 
 int main (int argc, char *argv[]) {
@@ -159,7 +174,7 @@ int main (int argc, char *argv[]) {
     auto cubeDrawable = Drawable(&matCube, &cube);
 
     light.drawable = &lightDrawable;
-    light.transform.setPosition(glm::vec3(1.2f, 1.0f, 1.0f));
+    light.transform.setPosition(glm::vec3(0, 0, 6));
     light.transform.setScale(glm::vec3(0.3f));
     auto l = Light(glm::vec3(0.2f, 0.15f, 0.1f),
                    glm::vec3(0.7f, 0.7f, 0.7f),
@@ -167,6 +182,42 @@ int main (int argc, char *argv[]) {
     light.light = &l;
 
     cubeObject.drawable = &cubeDrawable;
+
+    int _i = 0;
+    while (_i < 24) {
+        walls[_i].drawable = &cubeDrawable;
+        walls[_i].collider = new BoxCollider();
+        _i++;
+    }
+
+    _i = 0;
+
+    for (int i = -2; i < 3; i++) {
+        walls[_i].transform.setPosition(glm::vec3(i, 0 ,0));
+        walls[_i].collider->center = walls[_i].transform.getPosition();
+        ((BoxCollider*)(walls[_i].collider))->radius = 0.5;
+        _i++;
+        walls[_i].transform.setPosition(glm::vec3(i, 8 ,0));
+        walls[_i].collider->center = walls[_i].transform.getPosition();
+        ((BoxCollider*)(walls[_i].collider))->radius = 0.5;
+        _i++;
+    }
+    for (int i = 1; i <= 7; i++) {
+        walls[_i].transform.setPosition(glm::vec3(-2, i ,0));
+        walls[_i].collider->center = walls[_i].transform.getPosition();
+        ((BoxCollider*)(walls[_i].collider))->radius = 0.5;
+        _i++;
+        walls[_i].transform.setPosition(glm::vec3(2, i ,0));
+        walls[_i].collider->center = walls[_i].transform.getPosition();
+        ((BoxCollider*)(walls[_i].collider))->radius = 0.5;
+        _i++;
+    }
+
+    ball.transform.setPosition(glm::vec3(0, 4, 0));
+    ball.drawable = &lightDrawable;
+    ball.collider = new SphereCollider();
+    ball.collider->center = ball.transform.getPosition();
+    ((SphereCollider*)(ball.collider))->radius = 0.5;
 
     initConfiguration();
 
@@ -180,7 +231,7 @@ int main (int argc, char *argv[]) {
             // Handle Input
             handleInput(window, dt);
             //Render Here
-            render();
+            render(dt);
             //Swap front and back buffers
             glfwSwapBuffers(window);
             // Poll for and process events

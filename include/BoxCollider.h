@@ -10,6 +10,7 @@
 
 
 class BoxCollider : public Collider {
+public:
     bool checkCollision(const Collider& other) const override;
     bool collisionWithPoint(const glm::vec3& p) const override;
     float radius;
