@@ -8,6 +8,7 @@
 #include "Transform.h"
 #include "Drawable.h"
 #include "Light.h"
+#include "Collider.h"
 
 class GameObject {
 public:
@@ -15,6 +16,7 @@ public:
     Transform transform;
     Drawable *drawable;
     Light *light;
+    Collider *collider;
 };
 
 
